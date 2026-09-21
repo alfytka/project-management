@@ -1,0 +1,27 @@
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# env lokal jangan ikut masuk image (.env.example boleh)
+.env
+.env.*
+!.env.example
+
+# artefak test / tooling
+e2e
+coverage
+playwright-report
+test-results
+.eslintcache
+*.tsbuildinfo
+*.log
+
+# editor / OS
+.vscode
+.idea
+.DS_Store
