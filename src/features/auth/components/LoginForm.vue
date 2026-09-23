@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Lock, Mail } from '@lucide/vue'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
@@ -44,7 +45,15 @@ const onSubmit = handleSubmit((values) => {
       <FormItem>
         <FormLabel>Email</FormLabel>
         <FormControl>
-          <Input type="email" placeholder="nama@perusahaan.com" v-bind="componentField" />
+          <div class="relative">
+            <Mail class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input
+              type="email"
+              placeholder="nama@perusahaan.com"
+              class="pl-9"
+              v-bind="componentField"
+            />
+          </div>
         </FormControl>
         <FormMessage />
       </FormItem>
@@ -54,7 +63,10 @@ const onSubmit = handleSubmit((values) => {
       <FormItem>
         <FormLabel>Password</FormLabel>
         <FormControl>
-          <Input type="password" placeholder="********" v-bind="componentField" />
+          <div class="relative">
+            <Lock class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input type="password" placeholder="********" class="pl-9" v-bind="componentField" />
+          </div>
         </FormControl>
         <FormMessage />
       </FormItem>

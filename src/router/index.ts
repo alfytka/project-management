@@ -14,23 +14,6 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: () => import('@/layouts/AuthLayout.vue'),
-      meta: { guestOnly: true },
-      children: [
-        {
-          path: 'login',
-          name: 'login',
-          component: () => import('@/features/auth/pages/LoginPage.vue'),
-        },
-        {
-          path: 'register',
-          name: 'register',
-          component: () => import('@/features/auth/pages/RegisterPage.vue'),
-        },
-      ],
-    },
-    {
-      path: '/',
       component: () => import('@/layouts/AppLayout.vue'),
       meta: { requiresAuth: true },
       children: [
@@ -65,6 +48,23 @@ const router = createRouter({
           component: () => import('@/pages/ComingSoonPage.vue'),
           props: { title: 'Settings' },
           meta: { title: 'Settings' },
+        },
+      ],
+    },
+    {
+      path: '/',
+      component: () => import('@/layouts/AuthLayout.vue'),
+      meta: { guestOnly: true },
+      children: [
+        {
+          path: 'login',
+          name: 'login',
+          component: () => import('@/features/auth/pages/LoginPage.vue'),
+        },
+        {
+          path: 'register',
+          name: 'register',
+          component: () => import('@/features/auth/pages/RegisterPage.vue'),
         },
       ],
     },

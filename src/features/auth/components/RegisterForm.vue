@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Lock, Mail, User } from '@lucide/vue'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
@@ -43,7 +44,10 @@ const onSubmit = handleSubmit((values) => {
       <FormItem>
         <FormLabel>Nama</FormLabel>
         <FormControl>
-          <Input type="text" placeholder="Nama lengkap" v-bind="componentField" />
+          <div class="relative">
+            <User class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input type="text" placeholder="Nama lengkap" class="pl-9" v-bind="componentField" />
+          </div>
         </FormControl>
         <FormMessage />
       </FormItem>
@@ -53,7 +57,15 @@ const onSubmit = handleSubmit((values) => {
       <FormItem>
         <FormLabel>Email</FormLabel>
         <FormControl>
-          <Input type="email" placeholder="nama@perusahaan.com" v-bind="componentField" />
+          <div class="relative">
+            <Mail class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input
+              type="email"
+              placeholder="nama@perusahaan.com"
+              class="pl-9"
+              v-bind="componentField"
+            />
+          </div>
         </FormControl>
         <FormMessage />
       </FormItem>
@@ -63,7 +75,10 @@ const onSubmit = handleSubmit((values) => {
       <FormItem>
         <FormLabel>Password</FormLabel>
         <FormControl>
-          <Input type="password" placeholder="Minimal 6 karakter" v-bind="componentField" />
+          <div class="relative">
+            <Lock class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input type="password" placeholder="Minimal 6 karakter" class="pl-9" v-bind="componentField" />
+          </div>
         </FormControl>
         <FormMessage />
       </FormItem>
@@ -73,7 +88,10 @@ const onSubmit = handleSubmit((values) => {
       <FormItem>
         <FormLabel>Konfirmasi Password</FormLabel>
         <FormControl>
-          <Input type="password" placeholder="Ulangi password" v-bind="componentField" />
+          <div class="relative">
+            <Lock class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input type="password" placeholder="Ulangi password" class="pl-9" v-bind="componentField" />
+          </div>
         </FormControl>
         <FormMessage />
       </FormItem>
