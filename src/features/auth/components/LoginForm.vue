@@ -17,14 +17,13 @@ const { mutate, isPending } = useLogin()
 
 const onSubmit = handleSubmit((values) => {
   mutate(
-    { username: values.email, password: values.password },
+    { email: values.email, password: values.password },
     {
       onError: (error) => {
         const issues = extractValidationIssues(error)
         if (issues) {
           for (const issue of issues) {
-            const field = issue.field === 'username' ? 'email' : issue.field
-            setFieldError(field as 'email' | 'password', issue.message)
+            setFieldError(issue.field as 'email' | 'password', issue.message)
           }
           return
         }

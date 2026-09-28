@@ -3,8 +3,7 @@ import type { LoginPayload, Token, UserCreate, UserResponse } from './types'
 
 export async function login(payload: LoginPayload) {
   const body = new URLSearchParams({
-    grant_type: 'password',
-    username: payload.username,
+    email: payload.email,
     password: payload.password,
   })
 
