@@ -1,12 +1,49 @@
-const ACCENTS = [
-  'from-sky-400 to-blue-600',
-  'from-emerald-400 to-teal-600',
-  'from-amber-400 to-orange-600',
-  'from-violet-500 to-purple-600',
-  'from-rose-500 to-pink-600',
+export interface ProjectAccent {
+  /** Titik warna di sidebar. */
+  dot: string
+  /** Ikon tinted (card list). */
+  soft: string
+  /** Ikon solid (header detail). */
+  solid: string
+  /** Isi progress bar. */
+  bar: string
+}
+
+// Kelas ditulis utuh supaya terdeteksi Tailwind.
+const ACCENTS: ProjectAccent[] = [
+  {
+    dot: 'bg-violet-600',
+    soft: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300',
+    solid: 'bg-violet-600 text-white',
+    bar: 'bg-violet-600',
+  },
+  {
+    dot: 'bg-teal-600',
+    soft: 'bg-teal-50 text-teal-600 dark:bg-teal-500/15 dark:text-teal-300',
+    solid: 'bg-teal-600 text-white',
+    bar: 'bg-teal-600',
+  },
+  {
+    dot: 'bg-orange-600',
+    soft: 'bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300',
+    solid: 'bg-orange-600 text-white',
+    bar: 'bg-orange-600',
+  },
+  {
+    dot: 'bg-pink-600',
+    soft: 'bg-pink-50 text-pink-600 dark:bg-pink-500/15 dark:text-pink-300',
+    solid: 'bg-pink-600 text-white',
+    bar: 'bg-pink-600',
+  },
+  {
+    dot: 'bg-blue-700',
+    soft: 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300',
+    solid: 'bg-blue-700 text-white',
+    bar: 'bg-blue-700',
+  },
 ]
 
-export function getProjectAccent(id: string) {
+export function getProjectAccent(id: string): ProjectAccent {
   const hash = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0)
-  return ACCENTS[hash % ACCENTS.length]
+  return ACCENTS[hash % ACCENTS.length]!
 }

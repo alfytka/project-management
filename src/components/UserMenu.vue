@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ChevronRight, LogOut, UserCog } from '@lucide/vue'
+import { ChevronsUpDown, LogOut, UserCog } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import UserAvatar from '@/components/UserAvatar.vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { SidebarMenuButton } from '@/components/ui/sidebar'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const router = useRouter()
 
-const displayName = computed(() => authStore.user?.email ?? 'Pengguna')
-const initials = computed(() => displayName.value.slice(0, 2).toUpperCase())
+const user = computed(() => ({
+  id: authStore.user?.id ?? '',
+  name: authStore.user?.name ?? 'Pengguna',
+  email: authStore.user?.email ?? '',
+}))
 
 function handleLogout() {
   authStore.logout()
@@ -27,39 +30,40 @@ function handleLogout() {
 </script>
 
 <template>
-  <DropdownMenu>
-    <DropdownMenuTrigger as-child>
-      <SidebarMenuButton
-        size="lg"
-        class="group/profile h-auto gap-2.5 rounded-xl px-2 py-1.5 transition-[width,height,padding,background-color,box-shadow,transform] duration-200 ease-out hover:bg-sidebar-accent active:scale-[0.99] data-[state=open]:bg-sidebar-accent group-data-[collapsible=icon]:justify-center"
-      >
-        <Avatar class="size-9 shrink-0 rounded-full ring-1 ring-black/5 transition-transform duration-200 ease-out group-hover/profile:scale-105 group-data-[collapsible=icon]:size-7">
-          <AvatarFallback class="rounded-full bg-linear-to-br from-rose-500 to-pink-600 text-xs font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] group-data-[collapsible=icon]:text-[10px]">
-            {{ initials }}
-          </AvatarFallback>
-        </Avatar>
-        <div class="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-          <span class="truncate text-sm font-semibold">{{ displayName }}</span>
-          <span class="truncate text-xs text-muted-foreground">Akun &amp; Pengaturan</span>
-        </div>
-        <ChevronRight class="size-3.5 shrink-0 text-muted-foreground/70 transition-transform duration-200 ease-out group-hover/profile:translate-x-0.5 group-data-[collapsible=icon]:hidden" />
-      </SidebarMenuButton>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent class="w-56" align="start">
-      <DropdownMenuLabel class="font-normal">
-        <div class="grid text-left text-sm leading-tight">
-          <span class="truncate font-medium">{{ displayName }}</span>
-        </div>
-      </DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem @click="router.push({ name: 'settings' })">
-        <UserCog class="mr-2 size-4" />
-        Pengaturan akun
-      </DropdownMenuItem>
-      <DropdownMenuItem @click="handleLogout">
-        <LogOut class="mr-2 size-4" />
-        Keluar
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
+  <SidebarMenu>
+    <SidebarMenuItem>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <SidebarMenuButton
+            size="lg"
+            class="h-auto rounded-xl border bg-background py-2 shadow-xs hover:bg-background data-[state=open]:bg-background group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:shadow-none"
+          >
+            <UserAvatar :id="user.id" :name="user.name" class="size-9 group-data-[collapsible=icon]:size-8" />
+            <div class="grid flex-1 text-left leading-tight">
+              <span class="truncate text-sm font-semibold">{{ user.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
+            </div>
+            <ChevronsUpDown class="ml-auto text-muted-foreground" />
+          </SidebarMenuButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width) min-w-56" side="top" align="start">
+          <DropdownMenuLabel class="font-normal">
+            <div class="grid text-left text-sm leading-tight">
+              <span class="truncate font-medium">{{ user.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem @click="router.push({ name: 'settings' })">
+            <UserCog class="size-4" />
+            Pengaturan akun
+          </DropdownMenuItem>
+          <DropdownMenuItem @click="handleLogout">
+            <LogOut class="size-4" />
+            Keluar
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </SidebarMenuItem>
+  </SidebarMenu>
 </template>

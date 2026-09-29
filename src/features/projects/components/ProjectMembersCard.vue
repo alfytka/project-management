@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { extractErrorMessage, isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useUpdateMemberRole } from '../composables/useUpdateMemberRole'
 import type { MemberRole, ProjectDetail, ProjectMember } from '../types'
 import AddMemberDialog from './AddMemberDialog.vue'
@@ -36,11 +36,7 @@ function onRoleChange(member: ProjectMember, role: MemberRole) {
     {
       onError: (error) => {
         resetKey.value++
-        toast.error(
-          isNetworkError(error)
-            ? 'Tidak dapat terhubung ke server'
-            : extractErrorMessage(error, 'Gagal mengubah role, coba lagi'),
-        )
+        toast.error(toErrorToast(error, 'Gagal mengubah role, coba lagi'))
       },
     },
   )

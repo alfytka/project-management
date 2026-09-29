@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useDeleteProject } from '../composables/useDeleteProject'
 
 const props = defineProps<{
@@ -30,11 +30,7 @@ function onConfirm() {
       emit('deleted')
     },
     onError: (error) => {
-      toast.error(
-        isNetworkError(error)
-          ? 'Tidak dapat terhubung ke server'
-          : 'Gagal menghapus project, coba lagi',
-      )
+      toast.error(toErrorToast(error, 'Gagal menghapus project, coba lagi'))
     },
   })
 }

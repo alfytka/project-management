@@ -17,7 +17,12 @@ export interface LoginPayload {
   password: string
 }
 
-export interface Token {
+export interface LoginResponse {
   access_token: string
-  token_type: string
+  user: UserResponse
+}
+
+export interface MeResponse {
+  message: string
+  user: UserResponse
 }

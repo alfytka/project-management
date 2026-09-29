@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { extractErrorMessage, isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useRemoveMember } from '../composables/useRemoveMember'
 import type { ProjectMember } from '../types'
 
@@ -29,11 +29,7 @@ function onConfirm() {
       open.value = false
     },
     onError: (error) => {
-      toast.error(
-        isNetworkError(error)
-          ? 'Tidak dapat terhubung ke server'
-          : extractErrorMessage(error, 'Gagal menghapus member, coba lagi'),
-      )
+      toast.error(toErrorToast(error, 'Gagal menghapus member, coba lagi'))
     },
   })
 }

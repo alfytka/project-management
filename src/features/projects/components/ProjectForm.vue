@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { extractValidationIssues, isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useCreateProject } from '../composables/useCreateProject'
 import { useUpdateProject } from '../composables/useUpdateProject'
 import { projectSchema } from '../schema'
@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ saved: []; cancel: [] }>()
 
-const { handleSubmit, setFieldError } = useForm({
+const { handleSubmit } = useForm({
   validationSchema: projectSchema,
   initialValues: {
     name: props.project?.name ?? '',
@@ -30,18 +30,7 @@ const update = useUpdateProject()
 const isPending = () => create.isPending.value || update.isPending.value
 
 function onError(error: unknown) {
-  const issues = extractValidationIssues(error)
-  if (issues) {
-    for (const issue of issues) {
-      setFieldError(issue.field as 'name' | 'description', issue.message)
-    }
-    return
-  }
-  if (isNetworkError(error)) {
-    toast.error('Tidak dapat terhubung ke server')
-    return
-  }
-  toast.error('Gagal menyimpan project, coba lagi')
+  toast.error(toErrorToast(error, 'Gagal menyimpan project, coba lagi'))
 }
 
 const onSubmit = handleSubmit((values) => {

@@ -12,7 +12,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      authStore.setSession(data.access_token)
+      authStore.setSession(data.access_token, data.user)
       toast.success('Berhasil masuk')
 
       const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'

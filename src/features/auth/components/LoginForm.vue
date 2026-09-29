@@ -5,11 +5,11 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { extractValidationIssues, isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useLogin } from '../composables/useLogin'
 import { loginSchema } from '../schema'
 
-const { handleSubmit, setFieldError } = useForm({
+const { handleSubmit } = useForm({
   validationSchema: loginSchema,
 })
 
@@ -20,18 +20,7 @@ const onSubmit = handleSubmit((values) => {
     { email: values.email, password: values.password },
     {
       onError: (error) => {
-        const issues = extractValidationIssues(error)
-        if (issues) {
-          for (const issue of issues) {
-            setFieldError(issue.field as 'email' | 'password', issue.message)
-          }
-          return
-        }
-        if (isNetworkError(error)) {
-          toast.error('Tidak dapat terhubung ke server')
-          return
-        }
-        toast.error('Email atau password salah')
+        toast.error(toErrorToast(error, 'Email atau password salah'))
       },
     },
   )

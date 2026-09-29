@@ -5,11 +5,11 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { extractValidationIssues, isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useRegister } from '../composables/useRegister'
 import { registerSchema } from '../schema'
 
-const { handleSubmit, setFieldError } = useForm({
+const { handleSubmit } = useForm({
   validationSchema: registerSchema,
 })
 
@@ -20,18 +20,7 @@ const onSubmit = handleSubmit((values) => {
     { name: values.name, email: values.email, password: values.password },
     {
       onError: (error) => {
-        const issues = extractValidationIssues(error)
-        if (issues) {
-          for (const issue of issues) {
-            setFieldError(issue.field as 'name' | 'email' | 'password' | 'confirmPassword', issue.message)
-          }
-          return
-        }
-        if (isNetworkError(error)) {
-          toast.error('Tidak dapat terhubung ke server')
-          return
-        }
-        toast.error('Registrasi gagal, coba lagi')
+        toast.error(toErrorToast(error, 'Registrasi gagal, coba lagi'))
       },
     },
   )

@@ -1,17 +1,17 @@
 import { http } from '@/lib/http'
-import type { LoginPayload, Token, UserCreate, UserResponse } from './types'
+import type { LoginPayload, LoginResponse, MeResponse, UserCreate, UserResponse } from './types'
 
 export async function login(payload: LoginPayload) {
-  const body = new URLSearchParams({
-    email: payload.email,
-    password: payload.password,
-  })
-
-  const { data } = await http.post<Token>('/auth/login', body)
+  const { data } = await http.post<LoginResponse>('/auth/login', payload)
   return data
 }
 
 export async function register(payload: UserCreate) {
   const { data } = await http.post<UserResponse>('/auth/register', payload)
   return data
+}
+
+export async function getMe() {
+  const { data } = await http.get<MeResponse>('/me')
+  return data.user
 }

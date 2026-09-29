@@ -12,7 +12,7 @@ import {
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { extractErrorMessage, extractValidationIssues, isNetworkError } from '@/lib/api-errors'
+import { toErrorToast } from '@/lib/api-errors'
 import { useAddMember } from '../composables/useAddMember'
 import { memberSchema } from '../schema'
 
@@ -20,7 +20,7 @@ const props = defineProps<{ projectId: string }>()
 
 const open = defineModel<boolean>('open', { required: true })
 
-const { handleSubmit, setFieldError, resetForm } = useForm({
+const { handleSubmit, resetForm } = useForm({
   validationSchema: memberSchema,
   initialValues: { email: '', role: 'member' as const },
 })
@@ -34,18 +34,7 @@ const onSubmit = handleSubmit((values) => {
       resetForm()
     },
     onError: (error) => {
-      const issues = extractValidationIssues(error)
-      if (issues) {
-        for (const issue of issues) {
-          setFieldError(issue.field as 'email' | 'role', issue.message)
-        }
-        return
-      }
-      toast.error(
-        isNetworkError(error)
-          ? 'Tidak dapat terhubung ke server'
-          : extractErrorMessage(error, 'Gagal menambahkan member, coba lagi'),
-      )
+      toast.error(toErrorToast(error, 'Gagal menambahkan member, coba lagi'))
     },
   })
 })

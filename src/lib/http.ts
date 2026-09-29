@@ -16,7 +16,9 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    // 401 dari /auth/* berarti kredensial salah, bukan sesi kedaluwarsa — biarkan form yang menangani.
+    const isAuthRequest = String(error.config?.url ?? '').startsWith('/auth/')
+    if (error.response?.status === 401 && !isAuthRequest) {
       const authStore = useAuthStore()
       authStore.logout()
 

@@ -6,9 +6,9 @@ export const projectSchema = toTypedSchema(
     name: z
       .string({ required_error: 'Nama project wajib diisi' })
       .trim()
-      .min(1, 'Nama project wajib diisi')
-      .max(150, 'Nama project maksimal 150 karakter'),
-    description: z.string().optional(),
+      .min(3, 'Nama project minimal 3 karakter')
+      .max(100, 'Nama project maksimal 100 karakter'),
+    description: z.string().max(500, 'Deskripsi maksimal 500 karakter').optional(),
   }),
 )
 

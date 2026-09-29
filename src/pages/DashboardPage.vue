@@ -8,7 +8,7 @@ const authStore = useAuthStore()
 <template>
   <Card>
     <CardHeader>
-      <CardTitle>Selamat datang{{ authStore.user?.email ? `, ${authStore.user.email}` : '' }}</CardTitle>
+      <CardTitle>Selamat datang{{ authStore.user?.name ? `, ${authStore.user.name}` : '' }}</CardTitle>
       <CardDescription>
         Dashboard ini akan diisi ringkasan project & task pada iterasi berikutnya.
       </CardDescription>
