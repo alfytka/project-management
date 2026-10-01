@@ -17,12 +17,9 @@
  *
  * Catatan: sambungkan ke endpoint epic sungguhan di `api.ts` begitu backend siap.
  */
-import ProjectTabPlaceholder from '../../components/ProjectTabPlaceholder.vue'
+import ProjectEpicsPage from '@/features/epics/pages/ProjectEpicsPage.vue'
 </script>
 
 <template>
-  <ProjectTabPlaceholder
-    title="Epics sedang dikerjakan"
-    description="Daftar dan pengelolaan epic project akan tersedia di sini."
-  />
+  <ProjectEpicsPage />
 </template>
