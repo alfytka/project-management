@@ -4,5 +4,13 @@ import { Toaster } from '@/components/ui/sonner'
 
 <template>
   <RouterView />
-  <Toaster />
+  <!-- Warna per jenis (success/info/warning/error) diatur lewat CSS variable di style.css. -->
+  <Toaster
+    position="top-right"
+    rich-colors
+    close-button
+    close-button-position="top-right"
+    :duration="4000"
+    :visible-toasts="3"
+  />
 </template>

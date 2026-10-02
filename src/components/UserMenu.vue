@@ -32,7 +32,8 @@ function handleLogout() {
 <template>
   <SidebarMenu>
     <SidebarMenuItem>
-      <DropdownMenu>
+      <!-- Non-modal: klik di luar langsung mengenai elemen tujuan, bukan hanya menutup menu. -->
+      <DropdownMenu :modal="false">
         <DropdownMenuTrigger as-child>
           <SidebarMenuButton
             size="lg"

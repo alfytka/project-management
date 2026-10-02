@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
+import { computed } from 'vue'
 import { toast } from 'vue-sonner'
+import RequiredMark from '@/components/RequiredMark.vue'
+import { ResponsiveDialogBody, ResponsiveDialogFooter } from '@/components/responsive-dialog'
 import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -27,7 +30,7 @@ const { handleSubmit } = useForm({
 const create = useCreateProject()
 const update = useUpdateProject()
 
-const isPending = () => create.isPending.value || update.isPending.value
+const isPending = computed(() => create.isPending.value || update.isPending.value)
 
 function onError(error: unknown) {
   toast.error(toErrorToast(error, 'Gagal menyimpan project, coba lagi'))
@@ -49,34 +52,36 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-  <form class="space-y-4" @submit="onSubmit">
-    <FormField v-slot="{ componentField }" name="name">
-      <FormItem>
-        <FormLabel>Nama Project</FormLabel>
-        <FormControl>
-          <Input type="text" placeholder="Nama project" v-bind="componentField" />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    </FormField>
+  <form class="flex min-h-0 flex-1 flex-col" @submit="onSubmit">
+    <ResponsiveDialogBody class="space-y-4">
+      <FormField v-slot="{ componentField }" name="name">
+        <FormItem>
+          <FormLabel>Nama Project <RequiredMark /></FormLabel>
+          <FormControl>
+            <Input type="text" autocomplete="off" placeholder="Nama project" v-bind="componentField" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
 
-    <FormField v-slot="{ componentField }" name="description">
-      <FormItem>
-        <FormLabel>Deskripsi</FormLabel>
-        <FormControl>
-          <Textarea placeholder="Deskripsi singkat (opsional)" rows="4" v-bind="componentField" />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    </FormField>
+      <FormField v-slot="{ componentField }" name="description">
+        <FormItem>
+          <FormLabel>Deskripsi</FormLabel>
+          <FormControl>
+            <Textarea autocomplete="off" placeholder="Deskripsi singkat (opsional)" rows="4" v-bind="componentField" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+    </ResponsiveDialogBody>
 
-    <div class="flex justify-end gap-2">
-      <Button type="button" variant="outline" :disabled="isPending()" @click="emit('cancel')">
+    <ResponsiveDialogFooter>
+      <Button type="button" variant="outline" :disabled="isPending" @click="emit('cancel')">
         Batal
       </Button>
-      <Button type="submit" :disabled="isPending()">
-        {{ isPending() ? 'Menyimpan...' : 'Simpan' }}
+      <Button type="submit" :disabled="isPending">
+        {{ isPending ? 'Menyimpan...' : 'Simpan' }}
       </Button>
-    </div>
+    </ResponsiveDialogFooter>
   </form>
 </template>

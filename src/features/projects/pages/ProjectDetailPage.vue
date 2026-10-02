@@ -18,22 +18,22 @@ import DeleteProjectDialog from '../components/DeleteProjectDialog.vue'
 import ProjectFormDialog from '../components/ProjectFormDialog.vue'
 import ProjectTabsNav from '../components/ProjectTabsNav.vue'
 import RoleBadge from '../components/RoleBadge.vue'
+import { useProjectEpics } from '@/features/epics/composables/useProjectEpics'
+import { summarizeEpics } from '@/features/epics/lib/status'
 import { useCurrentProject } from '../composables/useCurrentProject'
-import { useProjectEpics } from '../composables/useProjectEpics'
-import { useProjectTaskStats } from '../composables/useProjectTaskStats'
-import { getProjectAccent } from '../lib/accent'
+import { useProjectAccent } from '../composables/useProjectAccent'
 
 const router = useRouter()
 
 const { projectId, project, isPending, isError, myRole, canManage } = useCurrentProject()
 const { data: epics } = useProjectEpics(projectId)
-const { data: taskStats } = useProjectTaskStats(projectId)
 
-const accent = computed(() => getProjectAccent(projectId.value))
+const accentOf = useProjectAccent()
+const accent = computed(() => accentOf(projectId.value))
 const members = computed(() => project.value?.members.map((m) => ({ id: m.user_id, name: m.name })) ?? [])
 const counts = computed(() => ({
   epics: epics.value?.length,
-  tasks: taskStats.value?.total,
+  tasks: epics.value && summarizeEpics(epics.value).total,
   members: project.value?.members.length,
 }))
 
@@ -70,13 +70,13 @@ const inviteOpen = ref(false)
 
   <template v-else>
     <div class="flex flex-wrap items-start gap-4">
-      <span :class="[accent.solid, 'flex size-14 shrink-0 items-center justify-center rounded-2xl']">
-        <FolderKanban class="size-7" />
+      <span :class="[accent.solid, 'flex size-12 shrink-0 items-center justify-center rounded-2xl sm:size-14']">
+        <FolderKanban class="size-6 sm:size-7" />
       </span>
 
       <div class="min-w-0 flex-1 space-y-1.5">
-        <div class="flex flex-wrap items-center gap-3">
-          <h1 class="truncate text-3xl font-bold tracking-tight">{{ project.name }}</h1>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h1 class="text-2xl font-bold tracking-tight break-words sm:text-3xl">{{ project.name }}</h1>
           <RoleBadge v-if="myRole" :role="myRole" />
         </div>
         <p v-if="project.description" class="text-muted-foreground">{{ project.description }}</p>
@@ -88,9 +88,11 @@ const inviteOpen = ref(false)
         </div>
       </div>
 
-      <div v-if="canManage" class="flex items-center gap-2">
-        <Button variant="outline" size="lg" @click="inviteOpen = true"><UserPlus /> Undang</Button>
-        <DropdownMenu>
+      <!-- Mobile: aksi turun ke baris sendiri supaya judul tidak terpotong. -->
+      <div v-if="canManage" class="flex w-full items-center gap-2 sm:w-auto">
+        <Button variant="outline" size="lg" class="flex-1 sm:flex-none" @click="inviteOpen = true"><UserPlus /> Undang</Button>
+        <!-- Non-modal: klik di luar langsung mengenai elemen tujuan, bukan hanya menutup menu. -->
+        <DropdownMenu :modal="false">
           <DropdownMenuTrigger as-child>
             <Button variant="outline" size="icon-lg" aria-label="Aksi project"><Ellipsis /></Button>
           </DropdownMenuTrigger>

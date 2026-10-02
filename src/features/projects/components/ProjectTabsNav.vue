@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const tabs = computed(() => [
   { name: 'project-overview', label: 'Overview' },
-  { name: 'project-epics', label: 'Epics', count: props.counts.epics },
+  { name: 'project-epics', label: 'Modules', count: props.counts.epics },
   { name: 'project-tasks', label: 'Tasks', count: props.counts.tasks },
   { name: 'project-members', label: 'Members', count: props.counts.members },
   { name: 'project-settings', label: 'Pengaturan' },

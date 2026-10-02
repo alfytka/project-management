@@ -21,7 +21,8 @@ const router = useRouter()
 </script>
 
 <template>
-  <DropdownMenu>
+  <!-- Non-modal: klik di luar langsung mengenai elemen tujuan, bukan hanya menutup menu. -->
+  <DropdownMenu :modal="false">
     <DropdownMenuTrigger as-child>
       <button
         type="button"

@@ -1,3 +1,5 @@
+import { hashString } from '@/lib/avatar'
+
 export interface ProjectAccent {
   /** Titik warna di sidebar. */
   dot: string
@@ -43,7 +45,11 @@ const ACCENTS: ProjectAccent[] = [
   },
 ]
 
-export function getProjectAccent(id: string): ProjectAccent {
-  const hash = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0)
-  return ACCENTS[hash % ACCENTS.length]!
+/**
+ * Aksen berdasarkan posisi project (urut `created_at`, terlama dulu) supaya project-project awal
+ * dijamin mendapat warna berbeda. `index` negatif (project tidak ada di daftar) → fallback hash id.
+ */
+export function getProjectAccent(id: string, index = -1): ProjectAccent {
+  const position = index >= 0 ? index : hashString(id)
+  return ACCENTS[position % ACCENTS.length]!
 }

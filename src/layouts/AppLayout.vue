@@ -13,7 +13,8 @@ useMe()
 <template>
   <SidebarProvider>
     <AppSidebar />
-    <SidebarInset>
+    <!-- min-w-0: tanpa ini konten lebar (tabel, board) mendorong layout keluar layar di tablet. -->
+    <SidebarInset class="min-w-0">
       <header class="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/80 lg:px-6">
         <SidebarTrigger class="-ml-1 text-muted-foreground" />
         <Separator orientation="vertical" class="data-[orientation=vertical]:h-4" />

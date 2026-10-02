@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { toErrorToast } from '@/lib/api-errors'
 import { useDeleteProject } from '../composables/useDeleteProject'
 
@@ -37,21 +29,16 @@ function onConfirm() {
 </script>
 
 <template>
-  <Dialog v-model:open="open">
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Hapus project?</DialogTitle>
-        <DialogDescription>
-          Project <strong>{{ project?.name }}</strong> akan dihapus permanen. Tindakan ini tidak
-          bisa dibatalkan.
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button variant="outline" :disabled="isPending" @click="open = false">Batal</Button>
-        <Button variant="destructive" :disabled="isPending" @click="onConfirm">
-          {{ isPending ? 'Menghapus...' : 'Hapus' }}
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+  <ConfirmDialog
+    v-model:open="open"
+    title="Hapus project?"
+    :pending="isPending"
+    pending-label="Menghapus..."
+    @confirm="onConfirm"
+  >
+    <template #description>
+      Project <strong>{{ project?.name }}</strong> beserta seluruh module dan task-nya akan dihapus
+      permanen.
+    </template>
+  </ConfirmDialog>
 </template>

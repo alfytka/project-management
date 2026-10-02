@@ -75,7 +75,16 @@ const segmentClass =
   <div class="mt-4 flex flex-wrap items-center gap-3">
     <div class="relative w-full sm:w-80">
       <Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-      <Input v-model="search" placeholder="Cari project..." class="h-10 pl-9" />
+      <Input
+        id="project-search"
+        v-model="search"
+        name="project-search"
+        type="search"
+        autocomplete="off"
+        placeholder="Cari project..."
+        aria-label="Cari project"
+        class="h-10 pl-9"
+      />
     </div>
 
     <div class="inline-flex items-center rounded-lg bg-muted p-1" role="tablist" aria-label="Filter role">
@@ -121,7 +130,7 @@ const segmentClass =
     <Button variant="outline" size="sm" @click="refetch()">Coba lagi</Button>
   </div>
 
-  <div v-else-if="isPending" class="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+  <div v-else-if="isPending" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
     <Skeleton v-for="n in 3" :key="n" class="h-72 rounded-2xl" />
   </div>
 
@@ -143,7 +152,7 @@ const segmentClass =
     Tidak ada project yang cocok dengan pencarian.
   </p>
 
-  <div v-else-if="viewMode === 'grid'" class="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+  <div v-else-if="viewMode === 'grid'" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
     <ProjectCard
       v-for="project in filteredProjects"
       :key="project.id"
@@ -154,7 +163,7 @@ const segmentClass =
     <NewProjectCard @click="openCreate" />
   </div>
 
-  <div v-else class="mt-4 divide-y overflow-hidden rounded-2xl border bg-card shadow-xs">
+  <div v-else class="@container mt-4 divide-y overflow-hidden rounded-2xl border bg-card shadow-xs">
     <ProjectListRow
       v-for="project in filteredProjects"
       :key="project.id"

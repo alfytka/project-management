@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import AvatarStack from '@/components/AvatarStack.vue'
 import { formatDate } from '@/lib/date'
 import { useProject } from '../composables/useProject'
+import { useProjectAccent } from '../composables/useProjectAccent'
 import { useProjectSummary } from '../composables/useProjectSummary'
-import { getProjectAccent } from '../lib/accent'
 import type { ProjectListItem } from '../types'
 import ProjectActionsMenu from './ProjectActionsMenu.vue'
 import RoleBadge from './RoleBadge.vue'
@@ -19,14 +19,21 @@ const emit = defineEmits<{
   delete: [project: ProjectListItem]
 }>()
 
-const accent = computed(() => getProjectAccent(props.project.id))
+const accentOf = useProjectAccent()
+const accent = computed(() => accentOf(props.project.id))
 const { summary } = useProjectSummary(() => props.project.id)
 const { data: detail } = useProject(() => props.project.id)
 const members = computed(() => detail.value?.members.map((m) => ({ id: m.user_id, name: m.name })) ?? [])
 </script>
 
 <template>
-  <div class="relative grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/50 md:grid-cols-[auto_minmax(0,1fr)_10rem_7rem_6rem_7rem_auto]">
+  <!--
+    Kolom mengikuti lebar daftar (container query di ProjectsPage), bukan viewport: dengan sidebar
+    terbuka, lebar konten di laptop kecil jauh lebih sempit dari breakpoint viewport-nya.
+  -->
+  <div
+    class="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/50 @2xl:grid-cols-[auto_minmax(0,1fr)_9rem_auto] @4xl:grid-cols-[auto_minmax(10rem,1fr)_9rem_7rem_6rem_7rem_auto]"
+  >
     <span :class="[accent.soft, 'flex size-9 items-center justify-center rounded-lg']">
       <FolderKanban class="size-4.5" />
     </span>
@@ -43,22 +50,22 @@ const members = computed(() => detail.value?.members.map((m) => ({ id: m.user_id
       </p>
     </div>
 
-    <div class="hidden items-center gap-2 md:flex">
+    <div class="hidden items-center gap-2 @2xl:flex">
       <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
         <div :class="[accent.bar, 'h-full rounded-full']" :style="{ width: `${summary.progress}%` }" />
       </div>
       <span class="w-9 text-right text-sm font-medium tabular-nums">{{ summary.progress }}%</span>
     </div>
 
-    <span class="hidden text-sm text-muted-foreground md:block">
-      {{ summary.epicCount }} epic · {{ summary.taskCount }} task
+    <span class="hidden text-sm text-muted-foreground @4xl:block">
+      {{ summary.epicCount }} module · {{ summary.taskCount }} task
     </span>
 
-    <div class="hidden md:block">
+    <div class="hidden @4xl:block">
       <AvatarStack :users="members" :total="project.member_count" />
     </div>
 
-    <span class="hidden text-sm text-muted-foreground md:block">{{ formatDate(project.created_at) }}</span>
+    <span class="hidden text-sm text-muted-foreground @4xl:block">{{ formatDate(project.created_at) }}</span>
 
     <div class="flex items-center gap-1.5">
       <RoleBadge :role="project.my_role" />

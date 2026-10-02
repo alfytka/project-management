@@ -1,6 +1,6 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
-import { summarizeEpics } from '../lib/epic'
-import { useProjectEpics } from './useProjectEpics'
+import { useProjectEpics } from '@/features/epics/composables/useProjectEpics'
+import { summarizeEpics } from '@/features/epics/lib/status'
 
 /** Ringkasan progress untuk card/list project: jumlah epic, task, dan persentase selesai. */
 export function useProjectSummary(projectId: MaybeRefOrGetter<string>) {

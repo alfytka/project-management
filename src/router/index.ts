@@ -41,11 +41,14 @@ const router = createRouter({
               meta: { title: 'Overview' },
             },
             {
-              path: 'epics',
+              // UI menyebut "Module"; resource backend tetap bernama epic.
+              path: 'modules',
               name: 'project-epics',
               component: () => import('@/features/projects/pages/tabs/ProjectEpicsTab.vue'),
-              meta: { title: 'Epics' },
+              meta: { title: 'Modules' },
             },
+            // URL lama sebelum rename — tetap berfungsi untuk link yang sudah tersimpan.
+            { path: 'epics', redirect: { name: 'project-epics' } },
             {
               path: 'tasks',
               name: 'project-tasks',
@@ -66,6 +69,14 @@ const router = createRouter({
             },
           ],
         },
+        {
+          // Sibling (bukan child) route project: halaman detail module tidak memakai header & tab project.
+          path: 'projects/:id/modules/:epicId',
+          name: 'epic-detail',
+          component: () => import('@/features/epics/pages/EpicDetailPage.vue'),
+          meta: { title: 'Module' },
+        },
+        { path: 'projects/:id/epics/:epicId', redirect: { name: 'epic-detail' } },
         {
           path: 'tasks',
           name: 'tasks',

@@ -47,28 +47,8 @@ export interface MemberRoleUpdate {
   role: MemberRole
 }
 
-// --- Epic / task / aktivitas -------------------------------------------------
-// Backend belum punya endpoint-nya; bentuk di bawah adalah usulan kontrak dan saat ini
-// diisi oleh `mock.ts`. Sesuaikan begitu endpoint tersedia.
-
-export interface Epic {
-  id: string
-  project_id: string
-  name: string
-  start_date: string
-  end_date: string
-  task_count: number
-  task_done_count: number
-}
-
-export type EpicStatus = 'done' | 'late' | 'in_progress' | 'not_started'
-
-export interface ProjectTaskStats {
-  total: number
-  done: number
-  open: number
-  due_this_week: number
-}
+// --- Aktivitas -----------------------------------------------------------------
+// Backend belum punya endpoint-nya; saat ini diisi oleh `mock.ts`.
 
 export interface ProjectActivity {
   id: string

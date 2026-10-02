@@ -1,54 +1,74 @@
 <script setup lang="ts">
-import { CheckCircle2, LayoutDashboard } from '@lucide/vue'
+import { Columns3, FolderKanban, Users } from '@lucide/vue'
+import BrandMark from '@/components/BrandMark.vue'
 
-const highlights = [
-  'Kelola project dan task dalam satu tempat',
-  'Kolaborasi tim yang lebih rapi dan terukur',
-  'Pantau progres secara real-time',
+// Halaman publik: hanya menjelaskan fitur, tidak menampilkan apa pun yang terlihat seperti data project.
+// Kelas ditulis utuh supaya terdeteksi Tailwind.
+const features = [
+  {
+    icon: FolderKanban,
+    iconClass: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300',
+    title: 'Project & Module',
+    description: 'Kelompokkan pekerjaan per project dan module dengan rentang waktu yang jelas.',
+  },
+  {
+    icon: Columns3,
+    iconClass: 'bg-teal-50 text-teal-600 dark:bg-teal-500/15 dark:text-teal-300',
+    title: 'Board & List',
+    description: 'Geser task antar status, lalu filter berdasarkan assignee, prioritas, dan due date.',
+  },
+  {
+    icon: Users,
+    iconClass: 'bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300',
+    title: 'Kolaborasi Tim',
+    description: 'Undang member, atur role admin atau member, dan bagi task ke anggota tim.',
+  },
 ]
 </script>
 
 <template>
-  <div class="grid min-h-svh lg:grid-cols-2">
-    <div class="relative hidden flex-col justify-between overflow-hidden bg-neutral-950 p-10 text-neutral-50 lg:flex">
-      <div
-        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_theme(colors.neutral.800),_transparent_55%)]"
-      />
-      <div
-        class="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,_theme(colors.white/0.04)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.white/0.04)_1px,_transparent_1px)] bg-[size:32px_32px]"
-      />
-
-      <div class="relative flex items-center gap-2">
-        <div class="flex size-8 items-center justify-center rounded-lg bg-white/10">
-          <LayoutDashboard class="size-4.5" />
-        </div>
-        <span class="text-lg font-semibold">Project Management</span>
+  <div class="grid min-h-svh bg-background lg:grid-cols-2">
+    <aside class="hidden flex-col justify-between gap-10 border-r bg-sidebar p-10 lg:flex">
+      <div class="flex items-center gap-2.5">
+        <BrandMark />
+        <span class="font-semibold">Project Management</span>
       </div>
 
-      <div class="relative space-y-6">
-        <p class="text-2xl leading-snug font-medium text-balance">
-          Satu ruang kerja untuk semua project dan task tim Anda.
-        </p>
-        <ul class="space-y-3">
-          <li v-for="item in highlights" :key="item" class="flex items-start gap-2.5 text-sm text-neutral-300">
-            <CheckCircle2 class="mt-0.5 size-4 shrink-0 text-neutral-400" />
-            <span>{{ item }}</span>
+      <div class="max-w-md space-y-10">
+        <div class="space-y-3">
+          <h2 class="text-3xl font-bold tracking-tight text-balance">
+            Satu ruang kerja untuk semua project dan task tim Anda.
+          </h2>
+          <p class="text-muted-foreground">
+            Rencanakan, bagi tugas, dan pantau progres tim tanpa berpindah aplikasi.
+          </p>
+        </div>
+
+        <ul class="space-y-6">
+          <li v-for="feature in features" :key="feature.title" class="flex gap-4">
+            <span :class="[feature.iconClass, 'flex size-10 shrink-0 items-center justify-center rounded-xl']">
+              <component :is="feature.icon" class="size-5" />
+            </span>
+            <div class="space-y-1">
+              <p class="font-semibold">{{ feature.title }}</p>
+              <p class="text-sm text-muted-foreground">{{ feature.description }}</p>
+            </div>
           </li>
         </ul>
       </div>
 
-      <p class="relative text-xs text-neutral-500">© {{ new Date().getFullYear() }} Project Management</p>
-    </div>
+      <p class="text-sm text-muted-foreground">© {{ new Date().getFullYear() }} Project Management</p>
+    </aside>
 
-    <div class="flex flex-col items-center justify-center gap-8 p-6 sm:p-10">
-      <div class="flex items-center gap-2 lg:hidden">
-        <LayoutDashboard class="size-6" />
-        <span class="text-lg font-semibold">Project Management</span>
+    <main class="flex flex-col items-center justify-center gap-10 px-4 py-10 sm:px-10">
+      <div class="flex items-center gap-2.5 lg:hidden">
+        <BrandMark />
+        <span class="font-semibold">Project Management</span>
       </div>
 
       <div class="w-full max-w-sm">
         <RouterView />
       </div>
-    </div>
+    </main>
   </div>
 </template>

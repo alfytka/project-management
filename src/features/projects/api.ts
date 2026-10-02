@@ -1,7 +1,6 @@
 import { http } from '@/lib/http'
-import { mockActivities, mockEpics, mockTaskStats } from './mock'
+import { mockActivities } from './mock'
 import type {
-  Epic,
   MemberAdd,
   MemberRole,
   Project,
@@ -10,7 +9,6 @@ import type {
   ProjectDetail,
   ProjectActivity,
   ProjectListItem,
-  ProjectTaskStats,
   ProjectUpdate,
 } from './types'
 
@@ -52,16 +50,6 @@ export async function updateMemberRole(projectId: string, userId: string, role: 
 
 export async function removeMember(projectId: string, userId: string) {
   await http.delete(`/projects/${projectId}/members/${userId}`)
-}
-
-// TODO(mock): ganti dengan endpoint epic begitu tersedia, mis. GET /projects/:id/epics
-export async function getProjectEpics(projectId: string): Promise<Epic[]> {
-  return mockEpics(projectId)
-}
-
-// TODO(mock): ganti dengan endpoint statistik task, mis. GET /projects/:id/tasks/stats
-export async function getProjectTaskStats(projectId: string): Promise<ProjectTaskStats> {
-  return mockTaskStats(projectId)
 }
 
 // TODO(mock): ganti dengan endpoint aktivitas, mis. GET /projects/:id/activities

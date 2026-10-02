@@ -1,7 +1,10 @@
 const AVATAR_COLORS = ['bg-pink-600', 'bg-teal-600', 'bg-orange-600', 'bg-blue-700', 'bg-violet-600']
 
-function hashString(value: string) {
-  return [...value].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+/** Hash djb2 — sebarannya jauh lebih merata dibanding menjumlah char code. */
+export function hashString(value: string) {
+  let hash = 5381
+  for (let i = 0; i < value.length; i++) hash = ((hash << 5) + hash + value.charCodeAt(i)) | 0
+  return Math.abs(hash)
 }
 
 /** Warna latar avatar yang stabil untuk id yang sama. */

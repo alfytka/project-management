@@ -8,8 +8,8 @@ export function useDeleteEpic() {
   return useMutation({
     mutationFn: deleteEpic,
     onSuccess: (_data, id) => {
-      toast.success('Epic berhasil dihapus')
-      queryClient.removeQueries({ queryKey: ['epics', id] })
+      toast.success('Module berhasil dihapus')
+      queryClient.removeQueries({ queryKey: ['epics', 'detail', id] })
       return queryClient.invalidateQueries({ queryKey: ['epics'] })
     },
   })

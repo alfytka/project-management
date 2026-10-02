@@ -15,8 +15,10 @@ export function useLogin() {
       authStore.setSession(data.access_token, data.user)
       toast.success('Berhasil masuk')
 
-      const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
-      router.push(redirect)
+      // Hanya terima path internal ("/projects/..."), bukan URL lain ("//evil.com").
+      const redirect = route.query.redirect
+      const isInternal = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
+      router.push(isInternal ? redirect : '/')
     },
   })
 }

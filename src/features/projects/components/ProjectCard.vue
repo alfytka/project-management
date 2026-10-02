@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import AvatarStack from '@/components/AvatarStack.vue'
 import { formatDate } from '@/lib/date'
 import { useProject } from '../composables/useProject'
+import { useProjectAccent } from '../composables/useProjectAccent'
 import { useProjectSummary } from '../composables/useProjectSummary'
-import { getProjectAccent } from '../lib/accent'
 import type { ProjectListItem } from '../types'
 import ProjectActionsMenu from './ProjectActionsMenu.vue'
 import ProjectProgress from './ProjectProgress.vue'
@@ -20,7 +20,8 @@ const emit = defineEmits<{
   delete: [project: ProjectListItem]
 }>()
 
-const accent = computed(() => getProjectAccent(props.project.id))
+const accentOf = useProjectAccent()
+const accent = computed(() => accentOf(props.project.id))
 const { summary } = useProjectSummary(() => props.project.id)
 
 // GET /projects hanya memberi member_count; avatar diambil dari detail (cache dipakai ulang oleh halaman detail).
@@ -55,7 +56,7 @@ const members = computed(() => detail.value?.members.map((m) => ({ id: m.user_id
     <ProjectProgress :progress="summary.progress" :epic-count="summary.epicCount" :bar-class="accent.bar" />
 
     <div class="flex items-center gap-4 text-sm text-muted-foreground">
-      <span class="inline-flex items-center gap-1.5"><Target class="size-4" /> {{ summary.epicCount }} epic</span>
+      <span class="inline-flex items-center gap-1.5"><Target class="size-4" /> {{ summary.epicCount }} module</span>
       <span class="inline-flex items-center gap-1.5"><ListChecks class="size-4" /> {{ summary.taskCount }} task</span>
     </div>
 

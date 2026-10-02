@@ -1,21 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { EPIC_STATUS_META, getEpicProgress, getEpicStatus } from '../../lib/epic'
-import type { Epic } from '../../types'
+import { EPIC_STATUS_META, getEpicStatus } from '@/features/epics/lib/status'
+import type { EpicListItem } from '@/features/epics/types'
+import { parseDateOnly, startOfToday } from '@/lib/date'
 
-const props = defineProps<{ epics: Epic[] }>()
+const props = defineProps<{
+  projectId: string
+  epics: EpicListItem[]
+}>()
 
 type Scale = 'month' | 'quarter'
 
 const scale = ref<Scale>('month')
-const today = new Date()
+const today = startOfToday()
 
 const monthFormatter = new Intl.DateTimeFormat('id-ID', { month: 'short', year: 'numeric' })
 const todayFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' })
 
 /** Kolom waktu (bulan/kuartal) yang mencakup seluruh epic dan hari ini, minimal 4 kolom. */
 const columns = computed(() => {
-  const times = props.epics.flatMap((e) => [new Date(e.start_date).getTime(), new Date(e.end_date).getTime()])
+  const times = props.epics.flatMap((e) => [parseDateOnly(e.start_date).getTime(), parseDateOnly(e.end_date).getTime()])
   const min = new Date(Math.min(today.getTime(), ...times))
   const max = new Date(Math.max(today.getTime(), ...times))
   const step = scale.value === 'month' ? 1 : 3
@@ -39,9 +43,9 @@ const range = computed(() => ({
   end: columns.value.at(-1)!.end.getTime(),
 }))
 
-function toPercent(date: Date | string) {
+function toPercent(date: Date) {
   const { start, end } = range.value
-  const value = ((new Date(date).getTime() - start) / (end - start)) * 100
+  const value = ((date.getTime() - start) / (end - start)) * 100
   return Math.min(100, Math.max(0, value))
 }
 
@@ -50,14 +54,17 @@ const todayPercent = computed(() => toPercent(today))
 const rows = computed(() =>
   props.epics.map((epic) => {
     const status = getEpicStatus(epic, today)
-    const left = toPercent(epic.start_date)
+    const left = toPercent(parseDateOnly(epic.start_date))
+    // +1 hari: end_date inklusif, bar menutup sampai akhir hari terakhir.
+    const end = parseDateOnly(epic.end_date)
+    end.setDate(end.getDate() + 1)
     return {
       epic,
       status,
       meta: EPIC_STATUS_META[status],
-      progress: getEpicProgress(epic),
+      progress: epic.progress,
       left,
-      width: Math.max(toPercent(epic.end_date) - left, 1),
+      width: Math.max(toPercent(end) - left, 1),
     }
   }),
 )
@@ -69,7 +76,7 @@ const segmentClass =
 <template>
   <section class="rounded-2xl border bg-card p-6 shadow-xs">
     <div class="flex items-center justify-between gap-4">
-      <h2 class="text-lg font-semibold">Timeline epic</h2>
+      <h2 class="text-lg font-semibold">Timeline module</h2>
       <div class="inline-flex items-center rounded-lg bg-muted p-1">
         <button type="button" :data-active="scale === 'month'" :class="segmentClass" @click="scale = 'month'">Bulan</button>
         <button type="button" :data-active="scale === 'quarter'" :class="segmentClass" @click="scale = 'quarter'">Kuartal</button>
@@ -77,7 +84,7 @@ const segmentClass =
     </div>
 
     <p v-if="!epics.length" class="py-12 text-center text-sm text-muted-foreground">
-      Belum ada epic. Buat epic untuk melihat timeline project.
+      Belum ada module. Buat module untuk melihat timeline project.
     </p>
 
     <template v-else>
@@ -96,8 +103,13 @@ const segmentClass =
             class="grid grid-cols-[13rem_1fr] items-center py-2.5"
           >
             <div class="min-w-0 pr-4">
-              <p class="truncate font-medium">{{ row.epic.name }}</p>
-              <p :class="[row.meta.text, 'text-xs']">{{ row.meta.label }} · {{ row.progress }}%</p>
+              <RouterLink
+                :to="{ name: 'epic-detail', params: { id: projectId, epicId: row.epic.id } }"
+                class="block truncate font-medium hover:underline"
+              >
+                {{ row.epic.title }}
+              </RouterLink>
+              <p :class="[row.status === 'late' ? 'text-red-600' : 'text-muted-foreground', 'text-xs']">{{ row.meta.label }} · {{ row.progress }}%</p>
             </div>
 
             <div class="relative h-10">
@@ -112,7 +124,7 @@ const segmentClass =
               <div
                 :class="[row.meta.track, 'absolute top-1/2 h-6 -translate-y-1/2 overflow-hidden rounded-md']"
                 :style="{ left: `${row.left}%`, width: `${row.width}%` }"
-                :title="`${row.epic.name}: ${row.progress}%`"
+                :title="`${row.epic.title}: ${row.progress}%`"
               >
                 <div :class="[row.meta.bar, 'h-full rounded-md']" :style="{ width: `${row.progress}%` }" />
               </div>

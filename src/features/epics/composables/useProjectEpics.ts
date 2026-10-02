@@ -6,5 +6,6 @@ export function useProjectEpics(projectId: MaybeRefOrGetter<string>) {
   return useQuery({
     queryKey: computed(() => ['epics', { projectId: toValue(projectId) }]),
     queryFn: () => getProjectEpics(toValue(projectId)),
+    enabled: computed(() => !!toValue(projectId)),
   })
 }

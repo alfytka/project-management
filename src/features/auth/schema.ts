@@ -5,6 +5,7 @@ export const loginSchema = toTypedSchema(
   z.object({
     email: z
       .string({ required_error: 'Email wajib diisi' })
+      .trim()
       .min(1, 'Email wajib diisi')
       .email('Format email tidak valid'),
     password: z.string({ required_error: 'Password wajib diisi' }).min(1, 'Password wajib diisi'),
@@ -16,12 +17,15 @@ export const registerSchema = toTypedSchema(
     .object({
       name: z
         .string({ required_error: 'Nama wajib diisi' })
+        .trim()
         .min(2, 'Nama minimal 2 karakter')
         .max(100, 'Nama maksimal 100 karakter'),
       email: z
         .string({ required_error: 'Email wajib diisi' })
+        .trim()
         .min(1, 'Email wajib diisi')
         .email('Format email tidak valid'),
+      // Sama dengan validasi backend (MinLength(6)).
       password: z
         .string({ required_error: 'Password wajib diisi' })
         .min(6, 'Password minimal 6 karakter'),

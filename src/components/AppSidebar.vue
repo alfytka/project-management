@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Bell, FolderKanban, LayoutDashboard, ListChecks, Plus, Search, Settings } from '@lucide/vue'
 import { onKeyStroke } from '@vueuse/core'
-import { computed, nextTick, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import AppBrand from '@/components/AppBrand.vue'
 import UserMenu from '@/components/UserMenu.vue'
-import WorkspaceSwitcher from '@/components/WorkspaceSwitcher.vue'
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/sidebar'
 import ProjectFormDialog from '@/features/projects/components/ProjectFormDialog.vue'
 import { useProjects } from '@/features/projects/composables/useProjects'
-import { getProjectAccent } from '@/features/projects/lib/accent'
+import { useProjectAccent } from '@/features/projects/composables/useProjectAccent'
 
 const route = useRoute()
 const { setOpen, isMobile, setOpenMobile } = useSidebar()
@@ -37,6 +37,7 @@ const navItems = [
 ]
 
 const { data: projects, isPending: projectsPending } = useProjects()
+const accentOf = useProjectAccent()
 
 const search = ref('')
 const query = computed(() => search.value.trim().toLowerCase())
@@ -56,6 +57,14 @@ function isActive(name: string) {
   return route.name === name
 }
 
+// Di mobile sidebar berupa sheet di atas konten; tutup setelah pindah halaman.
+watch(
+  () => route.fullPath,
+  () => {
+    if (isMobile.value) setOpenMobile(false)
+  },
+)
+
 const searchWrapper = useTemplateRef<HTMLElement>('searchWrapper')
 
 onKeyStroke('k', async (event) => {
@@ -69,6 +78,12 @@ onKeyStroke('k', async (event) => {
 
 const createOpen = ref(false)
 
+function openCreate() {
+  // Di mobile tutup sheet sidebar dulu supaya bottom sheet form tidak menumpuk di atasnya.
+  if (isMobile.value) setOpenMobile(false)
+  createOpen.value = true
+}
+
 const itemClass =
   'h-9 gap-2.5 rounded-lg px-2.5 text-[0.875rem] text-sidebar-foreground/80 data-[active=true]:bg-background data-[active=true]:font-semibold data-[active=true]:text-foreground data-[active=true]:shadow-xs data-[active=true]:ring-1 data-[active=true]:ring-sidebar-border'
 </script>
@@ -76,11 +91,20 @@ const itemClass =
 <template>
   <Sidebar collapsible="icon">
     <SidebarHeader class="gap-3">
-      <WorkspaceSwitcher />
+      <AppBrand />
 
       <div ref="searchWrapper" class="relative group-data-[collapsible=icon]:hidden">
         <Search class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-        <SidebarInput v-model="search" placeholder="Cari..." class="h-9 rounded-lg pr-12 pl-8" />
+        <SidebarInput
+          id="sidebar-search"
+          v-model="search"
+          name="sidebar-search"
+          type="search"
+          autocomplete="off"
+          placeholder="Cari..."
+          aria-label="Cari menu dan project"
+          class="h-9 rounded-lg pr-12 pl-8"
+        />
         <kbd class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border bg-muted px-1.5 font-sans text-[0.6875rem] font-medium text-muted-foreground">
           ⌘K
         </kbd>
@@ -106,7 +130,7 @@ const itemClass =
 
       <SidebarGroup class="group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel class="tracking-wider uppercase">Project Saya</SidebarGroupLabel>
-        <SidebarGroupAction title="Buat project" @click="createOpen = true">
+        <SidebarGroupAction title="Buat project" @click="openCreate">
           <Plus />
           <span class="sr-only">Buat project</span>
         </SidebarGroupAction>
@@ -120,7 +144,7 @@ const itemClass =
             <SidebarMenuItem v-for="project in filteredProjects" :key="project.id">
               <SidebarMenuButton as-child :is-active="activeProjectId === project.id" :class="itemClass">
                 <RouterLink :to="{ name: 'project-overview', params: { id: project.id } }">
-                  <span :class="[getProjectAccent(project.id).dot, 'mx-1 size-2.5 shrink-0 rounded-[3px]']" />
+                  <span :class="[accentOf(project.id).dot, 'mx-1 size-2.5 shrink-0 rounded-[3px]']" />
                   <span>{{ project.name }}</span>
                 </RouterLink>
               </SidebarMenuButton>

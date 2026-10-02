@@ -50,6 +50,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
           {{ formatter.custom(toDate(date), { month: 'short' }) }}
         </div>
         <NativeSelect
+          name="calendar-month"
+          aria-label="Bulan"
           class="text-xs h-8 pr-6 pl-2 text-transparent relative"
           :model-value="date.month"
           @change="(e: Event) => {
@@ -73,6 +75,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
           {{ formatter.custom(toDate(date), { year: 'numeric' }) }}
         </div>
         <NativeSelect
+          name="calendar-year"
+          aria-label="Tahun"
           class="text-xs h-8 pr-6 pl-2 text-transparent relative"
           :model-value="date.year"
           @change="(e: Event) => {

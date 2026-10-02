@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <div class="space-y-2">
     <div class="flex items-center justify-between text-sm">
-      <span class="text-muted-foreground">{{ epicCount ? 'Progress' : 'Belum ada epic' }}</span>
+      <span class="text-muted-foreground">{{ epicCount ? 'Progress' : 'Belum ada module' }}</span>
       <span v-if="epicCount" class="font-semibold tabular-nums">{{ progress }}%</span>
     </div>
     <div
