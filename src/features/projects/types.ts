@@ -1,3 +1,5 @@
+import type { TaskPriority } from '@/features/tasks/types'
+
 export interface ProjectListItem {
   id: string
   name: string
@@ -47,11 +49,14 @@ export interface MemberRoleUpdate {
   role: MemberRole
 }
 
-// --- Aktivitas -----------------------------------------------------------------
-// Backend belum punya endpoint-nya; saat ini diisi oleh `mock.ts`.
+// --- Dashboard -----------------------------------------------------------------
 
-export interface ProjectActivity {
-  id: string
-  message: string
-  created_at: string
+/** `GET /projects/:projectId/dashboard`: satu response agregat untuk seluruh halaman dashboard. */
+export interface ProjectDashboard {
+  total_tasks: number
+  by_status: { status_id: string; status_name: string; count: number }[]
+  by_priority: { priority: TaskPriority; count: number }[]
+  overdue_count: number
+  due_soon_count: number
+  epics: { id: string; title: string; progress: number; task_total: number; task_done: number }[]
 }

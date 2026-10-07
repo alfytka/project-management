@@ -12,7 +12,6 @@ import { useProjectEpics } from '@/features/epics/composables/useProjectEpics'
 import { EPIC_STATUS_META, EPIC_STATUS_ORDER, getEpicStatus } from '@/features/epics/lib/status'
 import type { EpicListItem, EpicStatus } from '@/features/epics/types'
 import { useProjectStatuses } from '@/features/statuses/composables/useProjectStatuses'
-import { useProjectTasks } from '@/features/tasks/composables/useProjectTasks'
 import { useCurrentProject } from '../../composables/useCurrentProject'
 
 type StatusFilter = 'all' | EpicStatus
@@ -20,35 +19,9 @@ type StatusFilter = 'all' | EpicStatus
 const router = useRouter()
 const { projectId, canManage } = useCurrentProject()
 const { data, isPending, isError, refetch } = useProjectEpics(projectId)
-const { statuses, colorOf } = useProjectStatuses(projectId)
-const { data: tasks } = useProjectTasks(projectId)
+const { colorOf } = useProjectStatuses(projectId)
 
-/** Breakdown status & assignee per epic dari satu request task project (bukan N request per epic). */
-const epicTaskSummary = computed(() => {
-  const summary = new Map<string, { statusCounts: Map<string, number>; assignees: Map<string, string> }>()
-  for (const task of tasks.value ?? []) {
-    const entry = summary.get(task.epic_id) ?? { statusCounts: new Map(), assignees: new Map() }
-    entry.statusCounts.set(task.status_id, (entry.statusCounts.get(task.status_id) ?? 0) + 1)
-    for (const assignee of task.assignees) entry.assignees.set(assignee.user_id, assignee.name)
-    summary.set(task.epic_id, entry)
-  }
-  return summary
-})
-
-function statusCountsOf(epicId: string) {
-  const counts = epicTaskSummary.value.get(epicId)?.statusCounts
-  return statuses.value.map((status) => ({
-    id: status.id,
-    name: status.name,
-    count: counts?.get(status.id) ?? 0,
-    dot: colorOf(status.id).dot,
-  }))
-}
-
-function assigneesOf(epicId: string) {
-  const assignees = epicTaskSummary.value.get(epicId)?.assignees ?? new Map<string, string>()
-  return [...assignees].map(([id, name]) => ({ id, name }))
-}
+const dotOf = (statusId: string) => colorOf(statusId).dot
 
 const search = ref('')
 const statusFilter = ref<StatusFilter>('all')
@@ -191,8 +164,7 @@ const segmentClass =
       :epic="epic"
       :project-id="projectId"
       :can-manage="canManage"
-      :status-counts="statusCountsOf(epic.id)"
-      :assignees="assigneesOf(epic.id)"
+      :dot-of="dotOf"
       @open="openDetail"
       @edit="openEdit"
       @delete="openDelete"

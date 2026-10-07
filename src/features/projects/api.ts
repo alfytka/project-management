@@ -1,13 +1,12 @@
 import { http } from '@/lib/http'
-import { mockActivities } from './mock'
 import type {
   MemberAdd,
   MemberRole,
   Project,
   ProjectMember,
   ProjectCreate,
+  ProjectDashboard,
   ProjectDetail,
-  ProjectActivity,
   ProjectListItem,
   ProjectUpdate,
 } from './types'
@@ -52,7 +51,10 @@ export async function removeMember(projectId: string, userId: string) {
   await http.delete(`/projects/${projectId}/members/${userId}`)
 }
 
-// TODO(mock): ganti dengan endpoint aktivitas, mis. GET /projects/:id/activities
-export async function getProjectActivities(projectId: string): Promise<ProjectActivity[]> {
-  return mockActivities(await getProject(projectId))
+/** `dueWithin`: jumlah hari ke depan untuk menghitung task due soon (1–365, default backend 3). */
+export async function getProjectDashboard(projectId: string, dueWithin?: number) {
+  const { data } = await http.get<ProjectDashboard>(`/projects/${projectId}/dashboard`, {
+    params: { due_within: dueWithin },
+  })
+  return data
 }

@@ -33,12 +33,12 @@ const router = createRouter({
           path: 'projects/:id',
           component: () => import('@/features/projects/pages/ProjectDetailPage.vue'),
           children: [
-            { path: '', name: 'project-detail', redirect: { name: 'project-overview' } },
+            { path: '', name: 'project-detail', redirect: { name: 'project-dashboard' } },
             {
-              path: 'overview',
-              name: 'project-overview',
-              component: () => import('@/features/projects/pages/tabs/ProjectOverviewTab.vue'),
-              meta: { title: 'Overview' },
+              path: 'dashboard',
+              name: 'project-dashboard',
+              component: () => import('@/features/projects/pages/tabs/ProjectDashboardTab.vue'),
+              meta: { title: 'Dashboard' },
             },
             {
               // UI menyebut "Module"; resource backend tetap bernama epic.

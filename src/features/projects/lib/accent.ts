@@ -46,10 +46,9 @@ const ACCENTS: ProjectAccent[] = [
 ]
 
 /**
- * Aksen berdasarkan posisi project (urut `created_at`, terlama dulu) supaya project-project awal
- * dijamin mendapat warna berbeda. `index` negatif (project tidak ada di daftar) → fallback hash id.
+ * Aksen project yang konsisten di sidebar, card, dan header detail. Diturunkan dari id saja,
+ * jadi tidak butuh daftar project dan warnanya tidak bergeser saat project lain ditambah/dihapus.
  */
-export function getProjectAccent(id: string, index = -1): ProjectAccent {
-  const position = index >= 0 ? index : hashString(id)
-  return ACCENTS[position % ACCENTS.length]!
+export function getProjectAccent(id: string): ProjectAccent {
+  return ACCENTS[hashString(id) % ACCENTS.length]!
 }

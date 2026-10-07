@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/sidebar'
 import ProjectFormDialog from '@/features/projects/components/ProjectFormDialog.vue'
 import { useProjects } from '@/features/projects/composables/useProjects'
-import { useProjectAccent } from '@/features/projects/composables/useProjectAccent'
+import { getProjectAccent } from '@/features/projects/lib/accent'
 
 const route = useRoute()
 const { setOpen, isMobile, setOpenMobile } = useSidebar()
@@ -37,7 +37,6 @@ const navItems = [
 ]
 
 const { data: projects, isPending: projectsPending } = useProjects()
-const accentOf = useProjectAccent()
 
 const search = ref('')
 const query = computed(() => search.value.trim().toLowerCase())
@@ -143,8 +142,8 @@ const itemClass =
             </template>
             <SidebarMenuItem v-for="project in filteredProjects" :key="project.id">
               <SidebarMenuButton as-child :is-active="activeProjectId === project.id" :class="itemClass">
-                <RouterLink :to="{ name: 'project-overview', params: { id: project.id } }">
-                  <span :class="[accentOf(project.id).dot, 'mx-1 size-2.5 shrink-0 rounded-[3px]']" />
+                <RouterLink :to="{ name: 'project-dashboard', params: { id: project.id } }">
+                  <span :class="[getProjectAccent(project.id).dot, 'mx-1 size-2.5 shrink-0 rounded-[3px]']" />
                   <span>{{ project.name }}</span>
                 </RouterLink>
               </SidebarMenuButton>

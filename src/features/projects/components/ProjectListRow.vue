@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import AvatarStack from '@/components/AvatarStack.vue'
 import { formatDate } from '@/lib/date'
 import { useProject } from '../composables/useProject'
-import { useProjectAccent } from '../composables/useProjectAccent'
 import { useProjectSummary } from '../composables/useProjectSummary'
+import { getProjectAccent } from '../lib/accent'
 import type { ProjectListItem } from '../types'
 import ProjectActionsMenu from './ProjectActionsMenu.vue'
 import RoleBadge from './RoleBadge.vue'
@@ -19,8 +19,7 @@ const emit = defineEmits<{
   delete: [project: ProjectListItem]
 }>()
 
-const accentOf = useProjectAccent()
-const accent = computed(() => accentOf(props.project.id))
+const accent = computed(() => getProjectAccent(props.project.id))
 const { summary } = useProjectSummary(() => props.project.id)
 const { data: detail } = useProject(() => props.project.id)
 const members = computed(() => detail.value?.members.map((m) => ({ id: m.user_id, name: m.name })) ?? [])
@@ -40,7 +39,7 @@ const members = computed(() => detail.value?.members.map((m) => ({ id: m.user_id
 
     <div class="min-w-0">
       <RouterLink
-        :to="{ name: 'project-overview', params: { id: project.id } }"
+        :to="{ name: 'project-dashboard', params: { id: project.id } }"
         class="block truncate font-semibold outline-none after:absolute after:inset-0 focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
       >
         {{ project.name }}

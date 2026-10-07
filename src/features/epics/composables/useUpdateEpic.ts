@@ -10,7 +10,10 @@ export function useUpdateEpic() {
     mutationFn: ({ id, payload }: { id: string; payload: EpicUpdate }) => updateEpic(id, payload),
     onSuccess: () => {
       toast.success('Module berhasil diperbarui')
-      return queryClient.invalidateQueries({ queryKey: ['epics'] })
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['epics'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ])
     },
   })
 }

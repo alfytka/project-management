@@ -1,5 +1,4 @@
-/** Item `GET /projects/:projectId/epics`. */
-export interface EpicListItem {
+interface EpicBase {
   id: string
   title: string
   description: string | null
@@ -11,11 +10,23 @@ export interface EpicListItem {
   progress: number
 }
 
+/** Jumlah task per status project dalam satu epic. */
+export interface EpicStatusTotal {
+  id: string
+  name: string
+  total: number
+}
+
+/** Item `GET /projects/:projectId/epics`. */
+export interface EpicListItem extends EpicBase {
+  statuses: EpicStatusTotal[]
+}
+
 /**
  * `GET /epics/:id`. Response juga membawa `tasks` versi ringkas (status hanya nama);
  * halaman detail memakai `GET /epics/:id/tasks` yang lengkap (status id & assignee).
  */
-export interface EpicDetail extends EpicListItem {
+export interface EpicDetail extends EpicBase {
   project_id: string
 }
 

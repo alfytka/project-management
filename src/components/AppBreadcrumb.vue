@@ -36,7 +36,7 @@ const crumbs = computed<Crumb[]>(() => {
   if (isProjectRoute.value) {
     const projectCrumbs: Crumb[] = [
       { label: 'Projects', to: { name: 'projects' } },
-      { label: projectLabel.value, to: { name: 'project-overview', params: { id: projectId.value } } },
+      { label: projectLabel.value, to: { name: 'project-dashboard', params: { id: projectId.value } } },
     ]
     if (epicId.value) {
       return [

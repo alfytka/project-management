@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FolderKanban, LayoutGrid, List, Plus, Search } from '@lucide/vue'
-import { useStorage } from '@vueuse/core'
+import { refDebounced, useStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,7 @@ type RoleFilter = 'all' | 'admin' | 'member'
 const { data, isPending, isError, refetch } = useProjects()
 
 const search = ref('')
+const debouncedSearch = refDebounced(search, 300)
 const roleFilter = ref<RoleFilter>('all')
 const viewMode = useStorage<'grid' | 'list'>('pm_projects_view', 'grid')
 
@@ -29,7 +30,7 @@ const filters = computed<{ value: RoleFilter; label: string; count: number }[]>(
 ])
 
 const filteredProjects = computed(() => {
-  const query = search.value.trim().toLowerCase()
+  const query = debouncedSearch.value.trim().toLowerCase()
   return projects.value.filter(
     (project) =>
       (roleFilter.value === 'all' || project.my_role === roleFilter.value) &&

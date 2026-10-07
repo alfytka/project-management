@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { CalendarDays } from '@lucide/vue'
 import { computed } from 'vue'
-import AvatarStack from '@/components/AvatarStack.vue'
 import { formatDateRange } from '@/lib/date'
 import { EPIC_STATUS_META, getEpicSchedule, getEpicStatus } from '../lib/status'
 import type { EpicListItem } from '../types'
@@ -9,20 +8,12 @@ import EpicActionsMenu from './EpicActionsMenu.vue'
 import EpicProgressBar from './EpicProgressBar.vue'
 import EpicStatusBadge from './EpicStatusBadge.vue'
 
-export interface EpicStatusCount {
-  id: string
-  name: string
-  count: number
-  dot: string
-}
-
 const props = defineProps<{
   epic: EpicListItem
   projectId: string
   canManage: boolean
-  /** Jumlah task per status project (dihitung dari `GET /projects/:id/tasks`). */
-  statusCounts: EpicStatusCount[]
-  assignees: { id: string; name: string }[]
+  /** Warna dot per id status project. */
+  dotOf: (statusId: string) => string
 }>()
 
 const emit = defineEmits<{
@@ -76,14 +67,11 @@ const schedule = computed(() => getEpicSchedule(props.epic))
       <EpicProgressBar :progress="epic.progress" :bar-class="EPIC_STATUS_META[status].bar" />
     </div>
 
-    <div v-if="statusCounts.length" class="flex items-center gap-3 border-t pt-4 text-sm">
-      <ul class="flex min-w-0 flex-1 flex-wrap gap-x-4 gap-y-1">
-        <li v-for="item in statusCounts" :key="item.id" class="inline-flex items-center gap-1.5 whitespace-nowrap">
-          <span :class="[item.dot, 'size-2 rounded-full']" />
-          {{ item.name }} <span class="tabular-nums text-muted-foreground">{{ item.count }}</span>
-        </li>
-      </ul>
-      <AvatarStack v-if="assignees.length" :users="assignees" class="relative z-10" />
-    </div>
+    <ul v-if="epic.statuses.length" class="flex flex-wrap gap-x-4 gap-y-1 border-t pt-4 text-sm">
+      <li v-for="item in epic.statuses" :key="item.id" class="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span :class="[dotOf(item.id), 'size-2 rounded-full']" />
+        {{ item.name }} <span class="tabular-nums text-muted-foreground">{{ item.total }}</span>
+      </li>
+    </ul>
   </div>
 </template>

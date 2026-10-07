@@ -33,7 +33,7 @@ const router = useRouter()
       </button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem @click="router.push({ name: 'project-overview', params: { id: props.project.id } })">
+      <DropdownMenuItem @click="router.push({ name: 'project-dashboard', params: { id: props.project.id } })">
         <FolderOpen class="size-4" />
         Buka project
       </DropdownMenuItem>

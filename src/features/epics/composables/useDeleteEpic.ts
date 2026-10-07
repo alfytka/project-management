@@ -10,7 +10,10 @@ export function useDeleteEpic() {
     onSuccess: (_data, id) => {
       toast.success('Module berhasil dihapus')
       queryClient.removeQueries({ queryKey: ['epics', 'detail', id] })
-      return queryClient.invalidateQueries({ queryKey: ['epics'] })
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['epics'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ])
     },
   })
 }

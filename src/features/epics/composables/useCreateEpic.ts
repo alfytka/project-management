@@ -11,7 +11,10 @@ export function useCreateEpic(projectId: MaybeRefOrGetter<string>) {
     mutationFn: (payload: EpicCreate) => createEpic(toValue(projectId), payload),
     onSuccess: () => {
       toast.success('Module berhasil dibuat')
-      return queryClient.invalidateQueries({ queryKey: ['epics'] })
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['epics'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ])
     },
   })
 }

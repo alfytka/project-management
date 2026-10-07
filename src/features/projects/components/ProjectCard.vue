@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import AvatarStack from '@/components/AvatarStack.vue'
 import { formatDate } from '@/lib/date'
 import { useProject } from '../composables/useProject'
-import { useProjectAccent } from '../composables/useProjectAccent'
 import { useProjectSummary } from '../composables/useProjectSummary'
+import { getProjectAccent } from '../lib/accent'
 import type { ProjectListItem } from '../types'
 import ProjectActionsMenu from './ProjectActionsMenu.vue'
 import ProjectProgress from './ProjectProgress.vue'
@@ -20,8 +20,7 @@ const emit = defineEmits<{
   delete: [project: ProjectListItem]
 }>()
 
-const accentOf = useProjectAccent()
-const accent = computed(() => accentOf(props.project.id))
+const accent = computed(() => getProjectAccent(props.project.id))
 const { summary } = useProjectSummary(() => props.project.id)
 
 // GET /projects hanya memberi member_count; avatar diambil dari detail (cache dipakai ulang oleh halaman detail).
@@ -43,7 +42,7 @@ const members = computed(() => detail.value?.members.map((m) => ({ id: m.user_id
 
     <div class="space-y-1">
       <RouterLink
-        :to="{ name: 'project-overview', params: { id: project.id } }"
+        :to="{ name: 'project-dashboard', params: { id: project.id } }"
         class="line-clamp-1 text-base font-semibold tracking-tight outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
       >
         {{ project.name }}
