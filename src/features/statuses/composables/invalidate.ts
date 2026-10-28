@@ -6,6 +6,7 @@ export function invalidateStatusDependents(queryClient: QueryClient) {
     queryClient.invalidateQueries({ queryKey: ['statuses'] }),
     queryClient.invalidateQueries({ queryKey: ['tasks'] }),
     queryClient.invalidateQueries({ queryKey: ['epics'] }),
+    queryClient.invalidateQueries({ queryKey: ['projects'], exact: true }),
     queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
   ])
 }

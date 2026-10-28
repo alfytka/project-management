@@ -1,7 +1,8 @@
 <script setup lang="ts">
 defineProps<{
   progress: number
-  epicCount: number
+  taskTotal: number
+  taskDone: number
   barClass: string
 }>()
 </script>
@@ -9,12 +10,15 @@ defineProps<{
 <template>
   <div class="space-y-2">
     <div class="flex items-center justify-between text-sm">
-      <span class="text-muted-foreground">{{ epicCount ? 'Progress' : 'Belum ada module' }}</span>
-      <span v-if="epicCount" class="font-semibold tabular-nums">{{ progress }}%</span>
+      <span class="text-muted-foreground">
+        {{ taskTotal ? `${taskDone} dari ${taskTotal} task selesai` : 'Belum ada task' }}
+      </span>
+      <span class="font-semibold tabular-nums">{{ progress }}%</span>
     </div>
     <div
       class="h-1.5 overflow-hidden rounded-full bg-muted"
       role="progressbar"
+      aria-label="Progress project"
       :aria-valuenow="progress"
       aria-valuemin="0"
       aria-valuemax="100"

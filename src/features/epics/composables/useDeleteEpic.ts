@@ -12,6 +12,7 @@ export function useDeleteEpic() {
       queryClient.removeQueries({ queryKey: ['epics', 'detail', id] })
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: ['epics'] }),
+        queryClient.invalidateQueries({ queryKey: ['projects'], exact: true }),
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
       ])
     },

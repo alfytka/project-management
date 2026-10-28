@@ -29,6 +29,7 @@ export function invalidateTaskDependents(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ['tasks'] }),
     queryClient.invalidateQueries({ queryKey: ['epics'] }),
+    queryClient.invalidateQueries({ queryKey: ['projects'], exact: true }),
     queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
   ])
 }

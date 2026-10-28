@@ -13,6 +13,7 @@ export function useCreateEpic(projectId: MaybeRefOrGetter<string>) {
       toast.success('Module berhasil dibuat')
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: ['epics'] }),
+        queryClient.invalidateQueries({ queryKey: ['projects'], exact: true }),
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
       ])
     },

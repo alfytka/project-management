@@ -21,6 +21,7 @@ test('project content follows repeated Modules and Dashboard navigation', async 
     task_total: 4,
     task_done: 1,
     progress: 25,
+    statuses: [],
   }
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
@@ -38,8 +39,17 @@ test('project content follows repeated Modules and Dashboard navigation', async 
     if (!['xhr', 'fetch'].includes(route.request().resourceType())) return route.continue()
     const path = new URL(route.request().url()).pathname
     const responses: Record<string, unknown> = {
-      '/me': user,
-      '/projects': [{ ...project, my_role: 'admin', member_count: 1 }],
+      '/me': { user },
+      '/projects': [{
+        ...project,
+        my_role: 'admin',
+        member_count: 1,
+        epic_count: 1,
+        task_total: epic.task_total,
+        task_done: epic.task_done,
+        progress: epic.progress,
+        members_preview: [{ user_id: user.id, name: user.name }],
+      }],
       '/projects/project-1': project,
       '/projects/project-1/epics': [epic],
       '/projects/project-1/tasks': [],

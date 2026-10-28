@@ -1,5 +1,11 @@
 import type { TaskPriority } from '@/features/tasks/types'
 
+export interface ProjectMemberPreview {
+  user_id: string
+  name: string
+}
+
+/** Item ringkasan dari `GET /projects`. */
 export interface ProjectListItem {
   id: string
   name: string
@@ -7,6 +13,12 @@ export interface ProjectListItem {
   my_role: string
   member_count: number
   created_at: string
+  epic_count: number
+  task_total: number
+  task_done: number
+  /** 0–100, dihitung backend. */
+  progress: number
+  members_preview: ProjectMemberPreview[]
 }
 
 export interface Project {
