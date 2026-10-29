@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   projectId: string
-  counts: { epics?: number; tasks?: number; members?: number }
+  counts: { epics?: number; tasks?: number; members?: number; attachments?: number}
 }>()
 
 const tabs = computed(() => [
@@ -11,6 +11,7 @@ const tabs = computed(() => [
   { name: 'project-epics', label: 'Modules', count: props.counts.epics },
   { name: 'project-tasks', label: 'Tasks', count: props.counts.tasks },
   { name: 'project-members', label: 'Members', count: props.counts.members },
+  { name: 'project-attachments', label: 'Lampiran', count: props.counts.attachments },
   { name: 'project-settings', label: 'Pengaturan' },
 ])
 </script>

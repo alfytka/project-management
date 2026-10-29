@@ -62,6 +62,12 @@ const router = createRouter({
               meta: { title: 'Members' },
             },
             {
+              path: 'attachments',
+              name: 'project-attachments',
+              component: () => import('@/features/projects/pages/tabs/ProjectAttachmentsTab.vue'),
+              meta: { title: 'Lampiran' },
+            },
+            {
               path: 'settings',
               name: 'project-settings',
               component: () => import('@/features/projects/pages/tabs/ProjectSettingsTab.vue'),

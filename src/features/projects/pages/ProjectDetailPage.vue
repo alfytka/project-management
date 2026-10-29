@@ -19,6 +19,7 @@ import ProjectFormDialog from '../components/ProjectFormDialog.vue'
 import ProjectTabsNav from '../components/ProjectTabsNav.vue'
 import RoleBadge from '../components/RoleBadge.vue'
 import { useProjectEpics } from '@/features/epics/composables/useProjectEpics'
+import { useProjectAttachments } from '@/features/attachments/composables/useProjectAttachments'
 import { summarizeEpics } from '@/features/epics/lib/status'
 import { useCurrentProject } from '../composables/useCurrentProject'
 import { getProjectAccent } from '../lib/accent'
@@ -27,6 +28,7 @@ const router = useRouter()
 
 const { projectId, project, isPending, isError, myRole, canManage } = useCurrentProject()
 const { data: epics } = useProjectEpics(projectId)
+const { data: attachments } = useProjectAttachments(projectId)
 
 const accent = computed(() => getProjectAccent(projectId.value))
 const members = computed(() => project.value?.members.map((m) => ({ id: m.user_id, name: m.name })) ?? [])
@@ -34,6 +36,7 @@ const counts = computed(() => ({
   epics: epics.value?.length,
   tasks: epics.value && summarizeEpics(epics.value).total,
   members: project.value?.members.length,
+  attachments: attachments.value?.length,
 }))
 
 const formOpen = ref(false)
