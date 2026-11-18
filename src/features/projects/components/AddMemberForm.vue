@@ -9,6 +9,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Select, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useAddMember } from '../composables/useAddMember'
 import { memberSchema } from '../schema'
 
@@ -21,16 +22,18 @@ const { handleSubmit } = useForm({
   initialValues: { email: '', role: 'member' as const },
 })
 
-const { mutate, isPending } = useAddMember(() => props.projectId)
+const { mutateAsync, isPending } = useAddMember(() => props.projectId)
 
-const onSubmit = handleSubmit((values) => {
-  mutate(values, {
-    onSuccess: () => emit('saved'),
-    onError: (error) => {
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    try {
+      await mutateAsync(values)
+      emit('saved')
+    } catch (error) {
       toast.error(toErrorToast(error, 'Gagal menambahkan member, coba lagi'))
-    },
-  })
-})
+    }
+  }),
+)
 </script>
 
 <template>

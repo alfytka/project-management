@@ -3,16 +3,22 @@ import { Columns3, Sparkles } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useSeedDefaultStatuses } from '../composables/useSeedDefaultStatuses'
 import { DEFAULT_STATUSES } from '../lib/color'
 
 const props = defineProps<{ projectId: string }>()
 
-const { mutate, isPending } = useSeedDefaultStatuses(() => props.projectId)
+const { mutateAsync, isPending } = useSeedDefaultStatuses(() => props.projectId)
 
-function seed() {
-  mutate(undefined, { onError: (error) => toast.error(toErrorToast(error, 'Gagal membuat status default')) })
-}
+// Klik ganda tanpa kunci akan men-seed dua kali (status ganda).
+const seed = singleFlight(async () => {
+  try {
+    await mutateAsync()
+  } catch (error) {
+    toast.error(toErrorToast(error, 'Gagal membuat status default'))
+  }
+})
 </script>
 
 <template>

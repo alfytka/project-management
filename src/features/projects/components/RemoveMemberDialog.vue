@@ -2,6 +2,7 @@
 import { toast } from 'vue-sonner'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useRemoveMember } from '../composables/useRemoveMember'
 import type { ProjectMember } from '../types'
 
@@ -12,19 +13,17 @@ const props = defineProps<{
 
 const open = defineModel<boolean>('open', { required: true })
 
-const { mutate, isPending } = useRemoveMember(() => props.projectId)
+const { mutateAsync, isPending } = useRemoveMember(() => props.projectId)
 
-function onConfirm() {
+const onConfirm = singleFlight(async () => {
   if (!props.member) return
-  mutate(props.member.user_id, {
-    onSuccess: () => {
-      open.value = false
-    },
-    onError: (error) => {
-      toast.error(toErrorToast(error, 'Gagal menghapus member, coba lagi'))
-    },
-  })
-}
+  try {
+    await mutateAsync(props.member.user_id)
+    open.value = false
+  } catch (error) {
+    toast.error(toErrorToast(error, 'Gagal menghapus member, coba lagi'))
+  }
+})
 </script>
 
 <template>

@@ -2,6 +2,7 @@
 import { toast } from 'vue-sonner'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useDeleteAttachment } from '../composables/useDeleteAttachment'
 
 const props = defineProps<{
@@ -10,19 +11,17 @@ const props = defineProps<{
 
 const open = defineModel<boolean>('open', { required: true })
 
-const { mutate, isPending } = useDeleteAttachment()
+const { mutateAsync, isPending } = useDeleteAttachment()
 
-function onConfirm() {
+const onConfirm = singleFlight(async () => {
   if (!props.attachment) return
-  mutate(props.attachment.id, {
-    onSuccess: () => {
-      open.value = false
-    },
-    onError: (error) => {
-      toast.error(toErrorToast(error, 'Gagal menghapus lampiran, coba lagi'))
-    },
-  })
-}
+  try {
+    await mutateAsync(props.attachment.id)
+    open.value = false
+  } catch (error) {
+    toast.error(toErrorToast(error, 'Gagal menghapus lampiran, coba lagi'))
+  }
+})
 </script>
 
 <template>

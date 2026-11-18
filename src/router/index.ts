@@ -91,12 +91,13 @@ const router = createRouter({
           meta: { title: 'Tugas Saya' },
         },
         {
-          path: 'notifications',
-          name: 'notifications',
-          component: () => import('@/pages/ComingSoonPage.vue'),
-          props: { title: 'Notifikasi' },
-          meta: { title: 'Notifikasi' },
+          path: 'mentions',
+          name: 'mentions',
+          component: () => import('@/features/mentions/pages/MentionsPage.vue'),
+          meta: { title: 'Mentions' },
         },
+        // Placeholder lama "Notifikasi" — saat ini inbox hanya berisi mention.
+        { path: 'notifications', name: 'notifications', redirect: { name: 'mentions' } },
         {
           path: 'settings',
           name: 'settings',
@@ -139,7 +140,8 @@ router.beforeEach((to) => {
   }
 
   if (to.meta.guestOnly && authStore.isAuthenticated) {
-    return { name: 'dashboard' }
+    // Menu Dashboard sementara disembunyikan; Projects jadi halaman awal.
+    return { name: 'projects' }
   }
 })
 

@@ -9,10 +9,7 @@ export function useReorderStatuses(projectId: MaybeRefOrGetter<string>) {
   const queryKey = computed(() => ['statuses', { projectId: toValue(projectId) }])
 
   return useMutation({
-    mutationFn: (orderedIds: string[]) =>
-      reorderStatuses(toValue(projectId), {
-        statuses: orderedIds.map((id, index) => ({ id, order: index + 1 })),
-      }),
+    mutationFn: (orderedIds: string[]) => reorderStatuses(toValue(projectId), { order: orderedIds }),
     onMutate: async (orderedIds) => {
       await queryClient.cancelQueries({ queryKey: queryKey.value })
       const previous = queryClient.getQueryData<Status[]>(queryKey.value)

@@ -40,6 +40,7 @@ test('project content follows repeated Modules and Dashboard navigation', async 
     const path = new URL(route.request().url()).pathname
     const responses: Record<string, unknown> = {
       '/me': { user },
+      '/mentions/unread-count': { count: 0 },
       '/projects': [{
         ...project,
         my_role: 'admin',
@@ -53,6 +54,7 @@ test('project content follows repeated Modules and Dashboard navigation', async 
       '/projects/project-1': project,
       '/projects/project-1/epics': [epic],
       '/projects/project-1/tasks': [],
+      '/projects/project-1/attachments': [],
       '/projects/project-1/statuses': [
         { id: 'todo', name: 'To Do', order: 0, is_default: true, is_done: false },
         { id: 'done', name: 'Done', order: 1, is_default: false, is_done: true },

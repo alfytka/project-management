@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { ExternalLink, Trash2 } from '@lucide/vue'
-import { ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import DatePicker from '@/components/DatePicker.vue'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import MentionEditor from '@/features/mentions/components/MentionEditor.vue'
+import MentionText from '@/features/mentions/components/MentionText.vue'
+import { buildMentionTargets, resolveMentions } from '@/features/mentions/lib/description'
 import type { StatusColor } from '@/features/statuses/lib/color'
 import type { Status } from '@/features/statuses/types'
 import { toErrorToast } from '@/lib/api-errors'
 import { formatDate } from '@/lib/date'
+import { singleFlight } from '@/lib/single-flight'
+import { useAuthStore } from '@/stores/auth'
 import { useDeleteTask } from '../composables/useDeleteTask'
 import { useToggleTaskAssignee } from '../composables/useTaskAssignees'
 import { useUpdateTask } from '../composables/useUpdateTask'
-import { taskTitleSchema } from '../schema'
+import { taskDescriptionSchema, taskTitleSchema } from '../schema'
 import type { Task, TaskAssignee, TaskUpdate } from '../types'
 import AssigneePicker from './AssigneePicker.vue'
 import PrioritySelect from './PrioritySelect.vue'
@@ -33,8 +38,10 @@ const emit = defineEmits<{ deleted: [] }>()
 const { mutate: update } = useUpdateTask()
 const { mutate: toggleAssignee } = useToggleTaskAssignee()
 
-function save(payload: TaskUpdate) {
-  update({ id: props.task.id, payload })
+const authStore = useAuthStore()
+
+function save(payload: TaskUpdate, mentions?: Task['mentions']) {
+  update({ id: props.task.id, payload, mentions })
 }
 
 // --- Judul & deskripsi: disimpan saat blur / Enter ---
@@ -60,24 +67,53 @@ function saveTitle() {
   if (parsed.data !== props.task.title) save({ title: parsed.data })
 }
 
+// --- Deskripsi: mode baca (chip @Nama) ↔ mode edit (editor mention), simpan saat blur ---
+const editingDescription = ref(false)
+const descriptionError = ref('')
+const descriptionTargets = computed(() => buildMentionTargets(props.task.mentions, props.members))
+
 function saveDescription() {
   const value = description.value.trim()
-  if (value !== (props.task.description ?? '')) save({ description: value })
+  const parsed = taskDescriptionSchema.safeParse(value)
+  if (!parsed.success) {
+    // Tetap di mode edit supaya teks tidak hilang dan user bisa memendekkannya.
+    descriptionError.value = parsed.error.issues[0]!.message
+    return
+  }
+  descriptionError.value = ''
+  editingDescription.value = false
+  if (value === (props.task.description ?? '')) return
+
+  // Perkiraan mention untuk optimistic update; server tetap sumber kebenaran setelah refetch.
+  const existing = new Map(props.task.mentions.map((mention) => [mention.user_id, mention]))
+  const targets = buildMentionTargets(props.task.mentions, props.members, { includeMembers: true })
+  const mentions = resolveMentions(value, targets).map(
+    ({ user_id, name, email }) =>
+      existing.get(user_id) ?? { user_id, name, email, mentioned_by: authStore.user?.id ?? '' },
+  )
+  save({ description: value }, mentions)
 }
+
+// Panel bisa tertutup tanpa event blur (tombol Back browser, pindah halaman, Escape di judul):
+// simpan suntingan yang masih terbuka supaya ketikan tidak hilang diam-diam.
+onBeforeUnmount(() => {
+  if (editingDescription.value) saveDescription()
+  if (title.value !== props.task.title) saveTitle()
+})
 
 // --- Hapus ---
-const { mutate: remove, isPending: isDeleting } = useDeleteTask()
+const { mutateAsync: remove, isPending: isDeleting } = useDeleteTask()
 const deleteOpen = ref(false)
 
-function onDelete() {
-  remove(props.task.id, {
-    onSuccess: () => {
-      deleteOpen.value = false
-      emit('deleted')
-    },
-    onError: (error) => toast.error(toErrorToast(error, 'Gagal menghapus task, coba lagi')),
-  })
-}
+const onDelete = singleFlight(async () => {
+  try {
+    await remove(props.task.id)
+    deleteOpen.value = false
+    emit('deleted')
+  } catch (error) {
+    toast.error(toErrorToast(error, 'Gagal menghapus task, coba lagi'))
+  }
+})
 </script>
 
 <template>
@@ -157,13 +193,34 @@ function onDelete() {
 
     <div class="space-y-2">
       <Label for="task-description">Deskripsi</Label>
-      <Textarea
+      <MentionEditor
+        v-if="editingDescription"
         id="task-description"
         v-model="description"
-        rows="5"
-        placeholder="Tambahkan deskripsi..."
+        aria-label="Deskripsi"
+        class="min-h-32"
+        :members="members"
+        :mentions="task.mentions"
+        :invalid="!!descriptionError"
+        placeholder="Tambahkan deskripsi... ketik @ untuk mention member"
+        autofocus
         @blur="saveDescription"
       />
+      <p v-if="editingDescription && descriptionError" class="text-sm text-destructive">{{ descriptionError }}</p>
+      <div
+        v-else
+        id="task-description"
+        role="button"
+        tabindex="0"
+        aria-label="Ubah deskripsi"
+        class="min-h-32 cursor-text rounded-md border border-transparent px-3 py-2 text-sm transition-colors outline-none hover:border-input focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        @click="editingDescription = true"
+        @keydown.enter.prevent="editingDescription = true"
+        @keydown.space.prevent="editingDescription = true"
+      >
+        <MentionText v-if="task.description" :text="task.description" :targets="descriptionTargets" />
+        <span v-else class="text-muted-foreground">Tambahkan deskripsi... ketik @ untuk mention member</span>
+      </div>
     </div>
 
     <Button variant="outline" class="w-full text-destructive hover:text-destructive sm:w-auto" @click="deleteOpen = true">

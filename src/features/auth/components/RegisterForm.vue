@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useRegister } from '../composables/useRegister'
 import { registerSchema } from '../schema'
 
@@ -17,23 +18,22 @@ const { handleSubmit, setFieldError } = useForm({
   initialValues: { name: '', email: '', password: '', confirmPassword: '' },
 })
 
-const { mutate, isPending } = useRegister()
+const { mutateAsync, isPending } = useRegister()
 
-const onSubmit = handleSubmit((values) => {
-  mutate(
-    { name: values.name, email: values.email, password: values.password },
-    {
-      onError: (error) => {
-        // Backend mengirim 409 "Email already registered" — tampilkan di field email.
-        if (isAxiosError(error) && error.response?.status === 409) {
-          setFieldError('email', 'Email sudah terdaftar')
-          return
-        }
-        toast.error(toErrorToast(error, 'Registrasi gagal, coba lagi'))
-      },
-    },
-  )
-})
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    try {
+      await mutateAsync({ name: values.name, email: values.email, password: values.password })
+    } catch (error) {
+      // Backend mengirim 409 "Email already registered" — tampilkan di field email.
+      if (isAxiosError(error) && error.response?.status === 409) {
+        setFieldError('email', 'Email sudah terdaftar')
+        return
+      }
+      toast.error(toErrorToast(error, 'Registrasi gagal, coba lagi'))
+    }
+  }),
+)
 </script>
 
 <template>

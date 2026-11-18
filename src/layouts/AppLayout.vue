@@ -6,8 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { useMe } from '@/features/auth/composables/useMe'
+import { useUnreadMentionCount } from '@/features/mentions/composables/useUnreadMentionCount'
+import { formatBadgeCount } from '@/features/mentions/lib/badge'
 
 useMe()
+const { data: unreadMentions } = useUnreadMentionCount()
 </script>
 
 <template>
@@ -19,9 +22,23 @@ useMe()
         <SidebarTrigger class="-ml-1 text-muted-foreground" />
         <Separator orientation="vertical" class="data-[orientation=vertical]:h-4" />
         <AppBreadcrumb class="min-w-0 flex-1" />
-        <!-- TODO: badge jumlah notifikasi belum dirender karena backend belum punya endpoint-nya -->
-        <Button variant="outline" size="icon" class="rounded-lg" aria-label="Notifikasi" as-child>
-          <RouterLink :to="{ name: 'notifications' }"><Bell /></RouterLink>
+        <Button
+          variant="outline"
+          size="icon"
+          class="relative rounded-lg"
+          :aria-label="unreadMentions ? `Mentions, ${unreadMentions} belum dibaca` : 'Mentions'"
+          as-child
+        >
+          <RouterLink :to="{ name: 'mentions' }">
+            <Bell />
+            <span
+              v-if="unreadMentions"
+              class="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-destructive px-1 text-[0.625rem] leading-none font-semibold text-white tabular-nums ring-2 ring-background"
+              aria-hidden="true"
+            >
+              {{ formatBadgeCount(unreadMentions) }}
+            </span>
+          </RouterLink>
         </Button>
       </header>
       <main class="flex flex-1 flex-col gap-4 px-4 py-6 lg:px-8 lg:py-8">

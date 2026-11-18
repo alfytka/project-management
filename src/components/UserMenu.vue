@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ChevronsUpDown, LogOut, UserCog } from '@lucide/vue'
+// UserCog dipakai lagi saat item "Pengaturan akun" diaktifkan kembali.
+import { ChevronsUpDown, LogOut } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -55,10 +56,12 @@ function handleLogout() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <!-- Disembunyikan sementara: halaman Pengaturan belum diimplementasikan.
           <DropdownMenuItem @click="router.push({ name: 'settings' })">
             <UserCog class="size-4" />
             Pengaturan akun
           </DropdownMenuItem>
+          -->
           <DropdownMenuItem @click="handleLogout">
             <LogOut class="size-4" />
             Keluar

@@ -10,6 +10,7 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/f
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useCreateStatus } from '../composables/useCreateStatus'
 import { useDeleteStatus } from '../composables/useDeleteStatus'
 import { useProjectStatuses } from '../composables/useProjectStatuses'
@@ -46,18 +47,22 @@ useSortable(list, [], {
 })
 
 // --- Tambah ---
-const { mutate: create, isPending: isCreating } = useCreateStatus(() => props.projectId)
+const { mutateAsync: create, isPending: isCreating } = useCreateStatus(() => props.projectId)
 const { handleSubmit, resetForm } = useForm({ validationSchema: statusSchema, initialValues: { name: '' } })
 
-const onCreate = handleSubmit((values) => {
-  create(values, {
-    onSuccess: () => resetForm(),
-    onError: (error) => toast.error(toErrorToast(error, 'Gagal menambahkan status')),
-  })
-})
+const onCreate = singleFlight(
+  handleSubmit(async (values) => {
+    try {
+      await create(values)
+      resetForm()
+    } catch (error) {
+      toast.error(toErrorToast(error, 'Gagal menambahkan status'))
+    }
+  }),
+)
 
 // --- Hapus ---
-const { mutate: remove, isPending: isDeleting } = useDeleteStatus()
+const { mutateAsync: remove, isPending: isDeleting } = useDeleteStatus()
 const deleteOpen = ref(false)
 const deleting = ref<Status | null>(null)
 
@@ -66,14 +71,16 @@ function openDelete(status: Status) {
   deleteOpen.value = true
 }
 
-function onDelete() {
+const onDelete = singleFlight(async () => {
   if (!deleting.value) return
-  remove(deleting.value.id, {
-    onSuccess: () => (deleteOpen.value = false),
+  try {
+    await remove(deleting.value.id)
+    deleteOpen.value = false
+  } catch (error) {
     // Backend menolak status terakhir / status yang masih dipakai task dengan pesan yang jelas.
-    onError: (error) => toast.error(toErrorToast(error, 'Gagal menghapus status')),
-  })
-}
+    toast.error(toErrorToast(error, 'Gagal menghapus status'))
+  }
+})
 </script>
 
 <template>

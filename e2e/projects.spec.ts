@@ -93,6 +93,8 @@ async function mockProjects(page: Page, response = projects) {
     const pathname = new URL(route.request().url()).pathname
     if (pathname === '/me') return route.fulfill({ json: { user } })
     if (pathname === '/projects') return route.fulfill({ json: response })
+    // Badge lonceng di header memanggil endpoint ini di setiap halaman.
+    if (pathname === '/mentions/unread-count') return route.fulfill({ json: { count: 0 } })
     extraRequests.push(pathname)
     return route.fulfill({ status: 404, json: { message: 'Unexpected request' } })
   })

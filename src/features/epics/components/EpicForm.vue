@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toErrorToast } from '@/lib/api-errors'
 import { toDateInput } from '@/lib/date'
+import { singleFlight } from '@/lib/single-flight'
 import { useCreateEpic } from '../composables/useCreateEpic'
 import { useUpdateEpic } from '../composables/useUpdateEpic'
 import { epicSchema } from '../schema'
@@ -42,17 +43,22 @@ function onError(error: unknown) {
   toast.error(toErrorToast(error, 'Gagal menyimpan module, coba lagi'))
 }
 
-const onSubmit = handleSubmit((values) => {
-  const description = values.description?.trim() ?? ''
-  const callbacks = { onSuccess: () => emit('saved'), onError }
-
-  if (props.epic) {
-    // Kirim string kosong supaya deskripsi yang dihapus user ikut terhapus di server.
-    update.mutate({ id: props.epic.id, payload: { ...values, description } }, callbacks)
-  } else {
-    create.mutate({ ...values, description: description || undefined }, callbacks)
-  }
-})
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    const description = values.description?.trim() ?? ''
+    try {
+      if (props.epic) {
+        // Kirim string kosong supaya deskripsi yang dihapus user ikut terhapus di server.
+        await update.mutateAsync({ id: props.epic.id, payload: { ...values, description } })
+      } else {
+        await create.mutateAsync({ ...values, description: description || undefined })
+      }
+      emit('saved')
+    } catch (error) {
+      onError(error)
+    }
+  }),
+)
 </script>
 
 <template>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Columns3, ListChecks, Plus, Rows3 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import SeedStatusesEmpty from '@/features/statuses/components/SeedStatusesEmpty.vue'
@@ -27,6 +28,13 @@ const search = ref('')
 const { statuses, colorOf, isDone, isPending: statusesPending } = useProjectStatuses(projectId)
 const { data, isPending: tasksPending, isError, refetch } = useProjectTasks(projectId, filters)
 
+// Komponen dipakai ulang saat pindah project tanpa keluar dari tab Tasks (mis. deep link task milik
+// project lain): filter lama (id status/assignee project sebelumnya) tidak berlaku lagi.
+watch(projectId, () => {
+  filters.value = {}
+  search.value = ''
+})
+
 const members = computed(() => project.value?.members ?? [])
 const hasFilter = computed(() => !!search.value || Object.values(filters.value).some(Boolean))
 
@@ -51,6 +59,28 @@ function openTask(task: Task) {
   selectedTaskId.value = task.id
   detailOpen.value = true
 }
+
+// Deep link `?task=<id>` (dipakai inbox mention): buka detail task, lalu bersihkan query saat ditutup.
+const route = useRoute()
+const router = useRouter()
+
+watch(
+  () => route.query.task,
+  (taskId) => {
+    if (typeof taskId !== 'string' || !taskId) return
+    selectedTaskId.value = taskId
+    detailOpen.value = true
+  },
+  { immediate: true },
+)
+
+watch(detailOpen, (open) => {
+  if (!open && route.query.task) {
+    const query = { ...route.query }
+    delete query.task
+    router.replace({ query })
+  }
+})
 
 const segmentClass =
   'inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs'

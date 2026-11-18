@@ -1,3 +1,5 @@
+import type { TaskMention } from '@/features/mentions/types'
+
 export const TASK_PRIORITIES = ['Low', 'Medium', 'High', 'Urgent'] as const
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 
@@ -24,8 +26,10 @@ export interface Task {
   created_at: string
   status: TaskStatusRef
   assignees: TaskAssignee[]
+  /** User yang di-mention di `description` (sebagai `@email`); sumber kebenaran render chip `@Nama`. */
+  mentions: TaskMention[]
   /** Hanya dikirim oleh `GET /projects/:id/tasks`, `GET /tasks/:id`, dan `PATCH /tasks/:id`. */
-  epic?: { id: string; title: string }
+  epic?: { id: string; title: string; project_id?: string }
 }
 
 export interface TaskCreate {
@@ -53,4 +57,6 @@ export interface TaskFilters {
   assignee?: string
   priority?: TaskPriority
   due_before?: string
+  /** `'me'` = task yang deskripsinya me-mention user login. */
+  mentioned?: 'me'
 }

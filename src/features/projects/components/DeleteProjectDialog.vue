@@ -2,6 +2,7 @@
 import { toast } from 'vue-sonner'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useDeleteProject } from '../composables/useDeleteProject'
 
 const props = defineProps<{
@@ -12,20 +13,18 @@ const emit = defineEmits<{ deleted: [] }>()
 
 const open = defineModel<boolean>('open', { required: true })
 
-const { mutate, isPending } = useDeleteProject()
+const { mutateAsync, isPending } = useDeleteProject()
 
-function onConfirm() {
+const onConfirm = singleFlight(async () => {
   if (!props.project) return
-  mutate(props.project.id, {
-    onSuccess: () => {
-      open.value = false
-      emit('deleted')
-    },
-    onError: (error) => {
-      toast.error(toErrorToast(error, 'Gagal menghapus project, coba lagi'))
-    },
-  })
-}
+  try {
+    await mutateAsync(props.project.id)
+    open.value = false
+    emit('deleted')
+  } catch (error) {
+    toast.error(toErrorToast(error, 'Gagal menghapus project, coba lagi'))
+  }
+})
 </script>
 
 <template>

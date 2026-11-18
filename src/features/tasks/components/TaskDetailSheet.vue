@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { X } from '@lucide/vue'
 import { isAxiosError } from 'axios'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
@@ -25,7 +26,28 @@ const isDesktop = useIsDesktop()
 const { data: task, isPending, isError, error } = useTask(() => props.taskId ?? '')
 const { statuses, colorOf } = useProjectStatuses(() => props.projectId)
 
-const notFound = computed(() => isAxiosError(error.value) && error.value.response?.status === 404)
+// Deep link `?task=` milik project lain: status & member di panel ini berasal dari project di URL,
+// jadi pindah ke halaman Tasks project pemiliknya (panel tetap terbuka lewat query `task`).
+const router = useRouter()
+const otherProjectId = computed(() => {
+  const owner = task.value?.epic?.project_id
+  return owner && owner !== props.projectId ? owner : undefined
+})
+watch(
+  otherProjectId,
+  (owner) => {
+    if (owner) router.replace({ name: 'project-tasks', params: { id: owner }, query: { task: task.value!.id } })
+  },
+  { immediate: true },
+)
+
+const errorMessage = computed(() => {
+  const code = isAxiosError(error.value) ? error.value.response?.status : undefined
+  if (code === 404) return 'Task tidak ditemukan'
+  // Mis. akses dicabut setelah inbox mention dimuat.
+  if (code === 403) return 'Kamu sudah tidak punya akses ke project ini'
+  return 'Gagal memuat task'
+})
 </script>
 
 <template>
@@ -52,12 +74,12 @@ const notFound = computed(() => isAxiosError(error.value) && error.value.respons
       </div>
 
       <div :class="isDesktop ? 'p-6 pt-10' : 'overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]'">
-        <div v-if="isPending" class="space-y-4">
+        <div v-if="isPending || otherProjectId" class="space-y-4">
           <Skeleton class="h-8 w-3/4" />
           <Skeleton v-for="n in 5" :key="n" class="h-9 w-full" />
         </div>
         <div v-else-if="isError || !task" class="space-y-3 py-8 text-center">
-          <p class="font-medium">{{ notFound ? 'Task tidak ditemukan' : 'Gagal memuat task' }}</p>
+          <p class="font-medium">{{ errorMessage }}</p>
           <Button variant="outline" size="sm" @click="open = false">Tutup</Button>
         </div>
         <TaskDetailContent

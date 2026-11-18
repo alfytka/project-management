@@ -18,6 +18,7 @@ export interface StatusCreate {
 
 export type StatusUpdate = Partial<StatusCreate>
 
+/** `PATCH /projects/:projectId/statuses/reorder`: seluruh id status project dalam urutan baru. */
 export interface StatusReorder {
-  statuses: { id: string; order: number }[]
+  order: string[]
 }

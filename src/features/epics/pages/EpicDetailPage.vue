@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowLeft, Pencil, Plus, Target, Trash2 } from '@lucide/vue'
 import { isAxiosError } from 'axios'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -24,7 +24,19 @@ const router = useRouter()
 
 const { projectId, project, canManage } = useCurrentProject()
 const epicId = computed(() => String(route.params.epicId ?? ''))
-const { data: epic, isPending, isError, error } = useEpic(epicId)
+const { data: epic, isPending: epicPending, isError, error } = useEpic(epicId)
+
+// URL `/projects/A/modules/<module milik project B>` (link lama/salah ketik): halaman ini memakai
+// member, status & role dari project di URL, jadi arahkan ke project pemilik module.
+const wrongProject = computed(() => !!epic.value && epic.value.project_id !== projectId.value)
+watch(
+  wrongProject,
+  (wrong) => {
+    if (wrong) router.replace({ name: 'epic-detail', params: { id: epic.value!.project_id, epicId: epicId.value } })
+  },
+  { immediate: true },
+)
+const isPending = computed(() => epicPending.value || wrongProject.value)
 const { data: tasks } = useEpicTasks(epicId)
 const { statuses, colorOf, isDone } = useProjectStatuses(projectId)
 

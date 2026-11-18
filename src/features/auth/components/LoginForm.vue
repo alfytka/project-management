@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useLogin } from '../composables/useLogin'
 import { loginSchema } from '../schema'
 
@@ -17,20 +18,22 @@ const { handleSubmit } = useForm({
   initialValues: { email: '', password: '' },
 })
 
-const { mutate, isPending } = useLogin()
+const { mutateAsync, isPending } = useLogin()
 
-const onSubmit = handleSubmit((values) => {
-  mutate(values, {
-    onError: (error) => {
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    try {
+      await mutateAsync(values)
+    } catch (error) {
       // Backend mengirim pesan berbahasa Inggris ("Invalid email or password").
       if (isAxiosError(error) && error.response?.status === 401) {
         toast.error('Email atau password salah')
         return
       }
       toast.error(toErrorToast(error, 'Gagal masuk, coba lagi'))
-    },
-  })
-})
+    }
+  }),
+)
 </script>
 
 <template>

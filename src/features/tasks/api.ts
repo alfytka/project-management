@@ -2,13 +2,14 @@ import { http } from '@/lib/http'
 import type { Task, TaskAssignee, TaskCreate, TaskFilters, TaskUpdate } from './types'
 
 type RawAssignee = Omit<TaskAssignee, 'user_id'> & { id?: string; user_id?: string }
-type RawTask = Omit<Task, 'assignees'> & { assignees: RawAssignee[] }
+type RawTask = Omit<Task, 'assignees' | 'mentions'> & { assignees: RawAssignee[]; mentions?: Task['mentions'] }
 
 // Backend mengirim assignee sebagai `{ id, name, email }`; frontend memakai `user_id` (sama dengan member project).
-function normalizeTask({ assignees, ...task }: RawTask): Task {
+function normalizeTask({ assignees, mentions, ...task }: RawTask): Task {
   return {
     ...task,
     assignees: assignees.map(({ id, user_id, ...rest }) => ({ ...rest, user_id: (user_id ?? id)! })),
+    mentions: mentions ?? [],
   }
 }
 

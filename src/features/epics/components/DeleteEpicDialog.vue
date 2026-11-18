@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { toast } from 'vue-sonner'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useDeleteEpic } from '../composables/useDeleteEpic'
 
 const props = defineProps<{
@@ -13,23 +14,21 @@ const emit = defineEmits<{ deleted: [] }>()
 
 const open = defineModel<boolean>('open', { required: true })
 
-const { mutate, isPending } = useDeleteEpic()
+const { mutateAsync, isPending } = useDeleteEpic()
 
 // Backend menolak (409) epic yang masih punya task.
 const hasTasks = computed(() => (props.epic?.task_total ?? 0) > 0)
 
-function onConfirm() {
+const onConfirm = singleFlight(async () => {
   if (!props.epic) return
-  mutate(props.epic.id, {
-    onSuccess: () => {
-      open.value = false
-      emit('deleted')
-    },
-    onError: (error) => {
-      toast.error(toErrorToast(error, 'Gagal menghapus module, coba lagi'))
-    },
-  })
-}
+  try {
+    await mutateAsync(props.epic.id)
+    open.value = false
+    emit('deleted')
+  } catch (error) {
+    toast.error(toErrorToast(error, 'Gagal menghapus module, coba lagi'))
+  }
+})
 </script>
 
 <template>

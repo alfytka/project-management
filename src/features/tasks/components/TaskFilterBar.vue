@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, X } from '@lucide/vue'
+import { AtSign, Search, X } from '@lucide/vue'
 import { computed } from 'vue'
 import DatePicker from '@/components/DatePicker.vue'
 import { Button } from '@/components/ui/button'
@@ -36,6 +36,11 @@ const priority = bind('priority')
 const dueBefore = computed({
   get: () => filters.value.due_before,
   set: (value) => (filters.value = { ...filters.value, due_before: value }),
+})
+
+const mentionedMe = computed({
+  get: () => filters.value.mentioned === 'me',
+  set: (value: boolean) => (filters.value = { ...filters.value, mentioned: value ? 'me' : undefined }),
 })
 
 const otherMembers = computed(() => props.members.filter((member) => member.user_id !== props.currentUserId))
@@ -93,6 +98,18 @@ const priorities: TaskPriority[] = [...TASK_PRIORITIES]
     </Select>
 
     <DatePicker v-model="dueBefore" clearable placeholder="Due sebelum..." class="sm:w-44" aria-label="Due sebelum" />
+
+    <Button
+      variant="outline"
+      size="sm"
+      class="h-9"
+      :aria-pressed="mentionedMe"
+      :data-active="mentionedMe"
+      :class="mentionedMe && 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'"
+      @click="mentionedMe = !mentionedMe"
+    >
+      <AtSign /> Mentioned me
+    </Button>
 
     <Button v-if="hasFilter" variant="ghost" size="sm" class="col-span-2 sm:col-span-1" @click="reset">
       <X /> Reset filter

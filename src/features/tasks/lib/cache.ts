@@ -24,12 +24,16 @@ export function restoreTaskCaches(queryClient: QueryClient, snapshot: ReturnType
   for (const [key, data] of snapshot) queryClient.setQueryData(key, data)
 }
 
-/** Task memengaruhi progress & jumlah task di epic dan project, termasuk angka dashboard. */
+/**
+ * Task memengaruhi progress & jumlah task di epic dan project, termasuk angka dashboard, serta
+ * inbox mention (deskripsi diubah/task dihapus → mention bertambah/hilang).
+ */
 export function invalidateTaskDependents(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ['tasks'] }),
     queryClient.invalidateQueries({ queryKey: ['epics'] }),
     queryClient.invalidateQueries({ queryKey: ['projects'], exact: true }),
     queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    queryClient.invalidateQueries({ queryKey: ['mentions'] }),
   ])
 }

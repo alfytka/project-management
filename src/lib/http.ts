@@ -22,8 +22,13 @@ http.interceptors.response.use(
       const authStore = useAuthStore()
       authStore.logout()
 
-      const router = await import('@/router')
-      router.default.push({ name: 'login' })
+      // Simpan halaman yang sedang dibuka supaya setelah login ulang user kembali ke sana.
+      // Beberapa request bisa 401 bersamaan; hanya redirect sekali (saat belum di halaman login).
+      const { default: router } = await import('@/router')
+      const current = router.currentRoute.value
+      if (current.name !== 'login') {
+        router.push({ name: 'login', query: current.meta.requiresAuth ? { redirect: current.fullPath } : {} })
+      }
     }
     return Promise.reject(error)
   },

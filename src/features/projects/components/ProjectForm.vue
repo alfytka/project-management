@@ -9,6 +9,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useCreateProject } from '../composables/useCreateProject'
 import { useUpdateProject } from '../composables/useUpdateProject'
 import { projectSchema } from '../schema'
@@ -36,19 +37,21 @@ function onError(error: unknown) {
   toast.error(toErrorToast(error, 'Gagal menyimpan project, coba lagi'))
 }
 
-const onSubmit = handleSubmit((values) => {
-  const description = values.description?.trim() || null
-  const callbacks = { onSuccess: () => emit('saved'), onError }
-
-  if (props.project) {
-    update.mutate(
-      { id: props.project.id, payload: { name: values.name, description } },
-      callbacks,
-    )
-  } else {
-    create.mutate({ name: values.name, description }, callbacks)
-  }
-})
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    const description = values.description?.trim() || null
+    try {
+      if (props.project) {
+        await update.mutateAsync({ id: props.project.id, payload: { name: values.name, description } })
+      } else {
+        await create.mutateAsync({ name: values.name, description })
+      }
+      emit('saved')
+    } catch (error) {
+      onError(error)
+    }
+  }),
+)
 </script>
 
 <template>

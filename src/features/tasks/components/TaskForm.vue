@@ -9,11 +9,12 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import AppSelectContent from '@/components/AppSelectContent.vue'
 import { Select, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import type { EpicListItem } from '@/features/epics/types'
+import MentionEditor from '@/features/mentions/components/MentionEditor.vue'
 import type { StatusColor } from '@/features/statuses/lib/color'
 import type { Status } from '@/features/statuses/types'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useCreateTask } from '../composables/useCreateTask'
 import { taskSchema } from '../schema'
 import type { TaskAssignee } from '../types'
@@ -45,27 +46,28 @@ const { handleSubmit } = useForm({
   },
 })
 
-const { mutate, isPending } = useCreateTask()
+const { mutateAsync, isPending } = useCreateTask()
 
-const onSubmit = handleSubmit((values) => {
-  mutate(
-    {
-      epicId: values.epic_id,
-      payload: {
-        title: values.title,
-        description: values.description?.trim() || undefined,
-        priority: values.priority,
-        due_date: values.due_date || undefined,
-        status_id: values.status_id,
-      },
-      assigneeIds: values.assignee_ids,
-    },
-    {
-      onSuccess: () => emit('saved'),
-      onError: (error) => toast.error(toErrorToast(error, 'Gagal membuat task, coba lagi')),
-    },
-  )
-})
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    try {
+      await mutateAsync({
+        epicId: values.epic_id,
+        payload: {
+          title: values.title,
+          description: values.description?.trim() || undefined,
+          priority: values.priority,
+          due_date: values.due_date || undefined,
+          status_id: values.status_id,
+        },
+        assigneeIds: values.assignee_ids,
+      })
+      emit('saved')
+    } catch (error) {
+      toast.error(toErrorToast(error, 'Gagal membuat task, coba lagi'))
+    }
+  }),
+)
 </script>
 
 <template>
@@ -139,11 +141,19 @@ const onSubmit = handleSubmit((values) => {
         </FormField>
       </div>
 
-      <FormField v-slot="{ componentField }" name="description">
+      <FormField v-slot="{ value, handleChange, handleBlur, errorMessage }" name="description">
         <FormItem>
           <FormLabel>Deskripsi</FormLabel>
           <FormControl>
-            <Textarea autocomplete="off" placeholder="Detail pekerjaan (opsional)" rows="3" v-bind="componentField" />
+            <MentionEditor
+              :model-value="value ?? ''"
+              :members="members"
+              :invalid="!!errorMessage"
+              aria-label="Deskripsi"
+              placeholder="Detail pekerjaan (opsional), ketik @ untuk mention member"
+              @update:model-value="handleChange"
+              @blur="handleBlur"
+            />
           </FormControl>
           <FormMessage />
         </FormItem>

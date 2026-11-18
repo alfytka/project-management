@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toErrorToast } from '@/lib/api-errors'
+import { singleFlight } from '@/lib/single-flight'
 import { useCreateAttachment } from '../composables/useCreateAttachment'
 import { useUpdateAttachment } from '../composables/useUpdateAttachment'
 import { attachmentSchema } from '../schema'
@@ -58,16 +59,24 @@ function onError(error: unknown) {
   toast.error(toErrorToast(error, 'Gagal menyimpan lampiran, coba lagi'))
 }
 
-const onSubmit = handleSubmit((values) => {
-  const title = values.title?.trim() ?? ''
-  const callbacks = { onSuccess: () => emit('saved'), onError }
-
-  if (props.attachment) {
-    update.mutate({ id: props.attachment.id, payload: { url: values.url, title: title || getDomain(values.url) } }, callbacks)
-  } else {
-    create.mutate({ url: values.url, title: title || undefined }, callbacks)
-  }
-})
+const onSubmit = singleFlight(
+  handleSubmit(async (values) => {
+    const title = values.title?.trim() ?? ''
+    try {
+      if (props.attachment) {
+        await update.mutateAsync({
+          id: props.attachment.id,
+          payload: { url: values.url, title: title || getDomain(values.url) },
+        })
+      } else {
+        await create.mutateAsync({ url: values.url, title: title || undefined })
+      }
+      emit('saved')
+    } catch (error) {
+      onError(error)
+    }
+  }),
+)
 </script>
 
 <template>

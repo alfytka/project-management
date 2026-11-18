@@ -29,9 +29,12 @@ const features = [
 <template>
   <div class="grid min-h-svh bg-background lg:grid-cols-2">
     <aside class="hidden flex-col justify-between gap-10 border-r bg-sidebar p-10 lg:flex">
-      <div class="flex items-center gap-2.5">
-        <BrandMark />
-        <span class="font-semibold">Project Management</span>
+      <div class="flex items-center gap-3">
+        <BrandMark class="size-10" />
+        <span class="grid leading-tight">
+          <span class="font-semibold tracking-tight">Project Management</span>
+          <span class="text-sm text-muted-foreground">Ruang kerja tim</span>
+        </span>
       </div>
 
       <div class="max-w-md space-y-10">
@@ -61,9 +64,12 @@ const features = [
     </aside>
 
     <main class="flex flex-col items-center justify-center gap-10 px-4 py-10 sm:px-10">
-      <div class="flex items-center gap-2.5 lg:hidden">
-        <BrandMark />
-        <span class="font-semibold">Project Management</span>
+      <div class="flex items-center gap-3 lg:hidden">
+        <BrandMark class="size-10" />
+        <span class="grid leading-tight">
+          <span class="font-semibold tracking-tight">Project Management</span>
+          <span class="text-sm text-muted-foreground">Ruang kerja tim</span>
+        </span>
       </div>
 
       <div class="w-full max-w-sm">

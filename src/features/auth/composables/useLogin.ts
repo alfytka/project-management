@@ -18,7 +18,8 @@ export function useLogin() {
       // Hanya terima path internal ("/projects/..."), bukan URL lain ("//evil.com").
       const redirect = route.query.redirect
       const isInternal = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
-      router.push(isInternal ? redirect : '/')
+      // Tanpa redirect: Projects (menu Dashboard sementara disembunyikan).
+      router.push(isInternal ? redirect : { name: 'projects' })
     },
   })
 }

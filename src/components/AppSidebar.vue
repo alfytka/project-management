@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Bell, FolderKanban, LayoutDashboard, ListChecks, Plus, Search, Settings } from '@lucide/vue'
+// LayoutDashboard, ListChecks & Settings dipakai lagi saat menu Dashboard / Tugas Saya / Pengaturan diaktifkan kembali.
+import { AtSign, FolderKanban, Plus, Search } from '@lucide/vue'
 import { onKeyStroke } from '@vueuse/core'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -16,6 +17,7 @@ import {
   SidebarHeader,
   SidebarInput,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
@@ -23,20 +25,29 @@ import {
 } from '@/components/ui/sidebar'
 import ProjectFormDialog from '@/features/projects/components/ProjectFormDialog.vue'
 import { useProjects } from '@/features/projects/composables/useProjects'
+import { useUnreadMentionCount } from '@/features/mentions/composables/useUnreadMentionCount'
+import { formatBadgeCount } from '@/features/mentions/lib/badge'
 import { getProjectAccent } from '@/features/projects/lib/accent'
 
 const route = useRoute()
 const { setOpen, isMobile, setOpenMobile } = useSidebar()
 
-// TODO: badge jumlah (Tugas Saya, Notifikasi) ditambahkan begitu endpoint-nya tersedia.
+// Sementara hanya menu yang sudah berfungsi penuh. Dashboard & Tugas Saya disembunyikan dulu
+// (route-nya tetap ada); aktifkan lagi beserta import ikonnya bila halamannya sudah siap.
+// TODO: badge jumlah Tugas Saya ditambahkan begitu endpoint-nya tersedia.
 const navItems = [
-  { name: 'dashboard', label: 'Dashboard', to: '/', icon: LayoutDashboard },
-  { name: 'tasks', label: 'Tugas Saya', to: '/tasks', icon: ListChecks },
+  // { name: 'dashboard', label: 'Dashboard', to: '/', icon: LayoutDashboard },
+  // { name: 'tasks', label: 'Tugas Saya', to: '/tasks', icon: ListChecks },
   { name: 'projects', label: 'Projects', to: '/projects', icon: FolderKanban },
-  { name: 'notifications', label: 'Notifikasi', to: '/notifications', icon: Bell },
+  { name: 'mentions', label: 'Mentions', to: '/mentions', icon: AtSign },
 ]
 
 const { data: projects, isPending: projectsPending } = useProjects()
+const { data: unreadMentions } = useUnreadMentionCount()
+
+function badgeOf(name: string) {
+  return name === 'mentions' ? formatBadgeCount(unreadMentions.value) : undefined
+}
 
 const search = ref('')
 const query = computed(() => search.value.trim().toLowerCase())
@@ -122,6 +133,13 @@ const itemClass =
                   <span>{{ item.label }}</span>
                 </RouterLink>
               </SidebarMenuButton>
+              <SidebarMenuBadge
+                v-if="badgeOf(item.name)"
+                class="rounded-full bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground"
+                :aria-label="`${unreadMentions} mention belum dibaca`"
+              >
+                {{ badgeOf(item.name) }}
+              </SidebarMenuBadge>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
@@ -160,6 +178,7 @@ const itemClass =
     </SidebarContent>
 
     <SidebarFooter class="gap-2">
+      <!-- Disembunyikan sementara: halaman Pengaturan belum diimplementasikan (route tetap ada).
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton as-child :is-active="isActive('settings')" tooltip="Pengaturan" :class="itemClass">
@@ -170,6 +189,7 @@ const itemClass =
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
+      -->
       <UserMenu />
     </SidebarFooter>
   </Sidebar>
