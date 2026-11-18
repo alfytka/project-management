@@ -27,8 +27,11 @@ import { getProjectAccent } from '../lib/accent'
 const router = useRouter()
 
 const { projectId, project, isPending, isError, myRole, canManage } = useCurrentProject()
-const { data: epics } = useProjectEpics(projectId)
-const { data: attachments } = useProjectAttachments(projectId)
+// Angka di tab baru diminta setelah project berhasil dimuat; kalau project 403/404, tidak ada
+// request tambahan yang pasti gagal (dan di-retry).
+const loadedProjectId = computed(() => (project.value ? projectId.value : ''))
+const { data: epics } = useProjectEpics(loadedProjectId)
+const { data: attachments } = useProjectAttachments(loadedProjectId)
 
 const accent = computed(() => getProjectAccent(projectId.value))
 const members = computed(() => project.value?.members.map((m) => ({ id: m.user_id, name: m.name })) ?? [])

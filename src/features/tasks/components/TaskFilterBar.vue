@@ -105,7 +105,10 @@ const priorities: TaskPriority[] = [...TASK_PRIORITIES]
       class="h-9"
       :aria-pressed="mentionedMe"
       :data-active="mentionedMe"
-      :class="mentionedMe && 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'"
+      :class="
+        mentionedMe &&
+        'border-violet-300 bg-violet-50 text-violet-700 hover:bg-violet-100 hover:text-violet-700 dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-violet-300 dark:hover:bg-violet-500/25 dark:hover:text-violet-300'
+      "
       @click="mentionedMe = !mentionedMe"
     >
       <AtSign /> Mentioned me

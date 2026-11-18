@@ -181,6 +181,9 @@ test('Escape saat mengedit deskripsi menyimpan ketikan dan panel tetap terbuka',
   const backend = await mockBackend(page)
   await page.goto('/projects/p1/tasks?task=t1')
   await page.getByRole('button', { name: 'Ubah deskripsi' }).click()
+  // Saat mengedit hanya editor yang tampil; tampilan baca tidak boleh ikut muncul (deskripsi ganda).
+  await expect(page.getByRole('textbox', { name: 'Deskripsi' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ubah deskripsi' })).toHaveCount(0)
   await page.getByRole('textbox', { name: 'Deskripsi' }).pressSequentially('Jangan hilang')
   await page.keyboard.press('Escape')
 

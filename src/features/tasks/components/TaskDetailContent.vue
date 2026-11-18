@@ -193,20 +193,22 @@ const onDelete = singleFlight(async () => {
 
     <div class="space-y-2">
       <Label for="task-description">Deskripsi</Label>
-      <MentionEditor
-        v-if="editingDescription"
-        id="task-description"
-        v-model="description"
-        aria-label="Deskripsi"
-        class="min-h-32"
-        :members="members"
-        :mentions="task.mentions"
-        :invalid="!!descriptionError"
-        placeholder="Tambahkan deskripsi... ketik @ untuk mention member"
-        autofocus
-        @blur="saveDescription"
-      />
-      <p v-if="editingDescription && descriptionError" class="text-sm text-destructive">{{ descriptionError }}</p>
+      <!-- Mode edit (editor + pesan error) dan mode baca saling eksklusif: satu pasangan v-if/v-else. -->
+      <template v-if="editingDescription">
+        <MentionEditor
+          id="task-description"
+          v-model="description"
+          aria-label="Deskripsi"
+          class="min-h-32"
+          :members="members"
+          :mentions="task.mentions"
+          :invalid="!!descriptionError"
+          placeholder="Tambahkan deskripsi... ketik @ untuk mention member"
+          autofocus
+          @blur="saveDescription"
+        />
+        <p v-if="descriptionError" class="text-sm text-destructive">{{ descriptionError }}</p>
+      </template>
       <div
         v-else
         id="task-description"

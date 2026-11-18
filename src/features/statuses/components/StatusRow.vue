@@ -121,11 +121,15 @@ function submitName() {
         />
         <span :id="`status-done-label-${status.id}`">Menandai Selesai</span>
       </div>
+      <!-- Status default tetap memakai slot tombol (tak terlihat) supaya toggle tiap baris sejajar. -->
       <Button
-        v-if="!readonly && !status.is_default"
+        v-if="!readonly"
         variant="outline"
         size="sm"
-        :disabled="isPending"
+        :class="status.is_default && 'invisible'"
+        :aria-hidden="status.is_default || undefined"
+        :tabindex="status.is_default ? -1 : undefined"
+        :disabled="isPending || status.is_default"
         @click="save({ is_default: true }, `${status.name} jadi status default`)"
       >
         <Star /> Jadikan default
